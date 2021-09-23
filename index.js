@@ -8,6 +8,7 @@ const preloadProducts = require('./src/preload/preloadProducts')
 const presetProducts = require('./src/preset/presetProducts')
 
 // Syncing all the models at once.
+const PORT = process.env.PORT || 3001
 const force = true;
 try {
   conn.sync({ force })
@@ -26,8 +27,8 @@ try {
         const setProducts = await presetProducts();
         console.log('preseteo de productos: done :)');
       }
-      server.listen(3001 || process.env.PORT, () => {
-        console.log('%s listening at 3001'); // eslint-disable-line no-console
+      server.listen(PORT, () => {
+        console.log(`${PORT}`); // eslint-disable-line no-console
       });
     })
 } catch (error) {
