@@ -3,7 +3,7 @@ const { Product } = require('../db')
 
 async function presetReviews(){
   try {
-    const wineCafayate = await Product.findOne({where : { name: "Cafayate" } })
+    const wineCafayate = await Product.findOne({where : { name: "Torrontés Cafayate Gran Linaje" } })
     const reviews = await Review.findAll()
   
     await wineCafayate.addReviews([reviews[0], reviews[1], reviews[2]]) 
