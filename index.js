@@ -10,6 +10,7 @@ const preloadReviews = require('./src/preload/preloadReviews')
 const presetReviews = require('./src/preset/presetReviews')
 
 // Syncing all the models at once.
+const PORT = process.env.PORT || 3001
 const force = true;
 try {
   conn.sync({ force })
@@ -32,8 +33,8 @@ try {
         const setReviews = await presetReviews();
         console.log('preseteo de reviews: done :)');
       }
-      server.listen(3001, () => {
-        console.log('%s listening at 3001'); // eslint-disable-line no-console
+      server.listen(PORT, () => {
+        console.log(`${PORT}`); // eslint-disable-line no-console
       });
     }).catch(e => {
       console.log(e)
