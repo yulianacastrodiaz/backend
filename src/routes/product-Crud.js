@@ -1,6 +1,5 @@
 const { Router } = require('express');
 require('dotenv').config();
-const express = require('express');
 const { Product, Category, SubCategory, Grape } = require('../db')
 const filtrar = require('./filters.js')
 const { api_key, api_secret, api_name } = process.env
@@ -15,58 +14,59 @@ const firstUpperCase = function (mayus) { return mayus.replace(/\b\w/g, l => l.t
 //Add a product to the database
 router.post('/', async (req, res) => {
    let { name, description, brand, price, year, rating, stock, picture, category, subcategory, grape } = req.body;
-   let errmsg = {};
 
    if (!name) {
-      errmsg.name = 'Name is required'
-   } else {
-      if (!description) {
-         errmsg.desc = 'Description is required'
-      } else {
-         if (isNaN(year)) {
-            errmsg.year = 'Year is not a number'
-         } else {
-            if (!brand) {
-               errmsg.brand = 'Brand is required'
-            } else {
-               if (isNaN(stock) || stock < 0) {
-                  errmsg.brand = `Error in stock value: ${stock}`
-               }
-            }
-         }
-      }
+      res.status(400).json({ error: 'Name is required'})
+   }
+   if (!description) {
+      res.status(400).json({ error:'Description is required'})
+   }
+   if (isNaN(year)) {
+      res.status(400).json({ error: 'Year is not a number'})
+   }
+   if (!brand) {
+      res.status(400).json({ error:'Brand is required'})
+   }
+   if (!price) {
+      res.status(400).json({ error:'Price is required'})
+   }
+   if (isNaN(stock) || stock < 0) {
+      res.status(400).json({ error: `Error in stock value: ${stock}` })
    }
 
    try {
       //Find Category
       var categoryProd = await Category.findOne({
-         where: { name: category }
+         where: { name: category.toLowerCase() }
       })
+
       if (categoryProd === null) {
-         errmsg.cat = 'Invalid Category'
+         res.status(400).json({ error: 'Invalid Category' })
       }
+
       var subCatProd = await SubCategory.findOne({
-         where: { type: subcategory }
+         where: { type: subcategory.toLowerCase() }
       })
+
       if (subCatProd === null) {
-         errmsg.subcat = 'Invalid SubCategory'
+         res.status(400).json({ error: 'Invalid SubCategory' })
       }
+
       if (category === 'wines') {
          // Find Grape
          var grapes = await Grape.findOne({
-            where: { name: grape }
+            where: { name: (grape[0].toUpperCase() + grape.slice(1)) }
          })
+
          if (grapes === null) {
-            errmsg.grape = 'Invalid Grape'
+            res.status(400).json({ error: 'Invalid Grape' })
          }
       }
-      if (Object.keys(errmsg).length) {
-         return res.status(400).send(errmsg)
-      }
+      
       const newproduct = await Product.create({
-         name,
+         name: firstUpperCase(name.toLowerCase()),
          description,
-         brand,
+         brand: firstUpperCase(brand.toLowerCase()),
          price,
          year,
          rating,
@@ -76,13 +76,15 @@ router.post('/', async (req, res) => {
 
       await categoryProd.addProduct(newproduct)
       await subCatProd.addProduct(newproduct)
+
       if (category === 'wines') {
          await grapes.addProduct(newproduct)
       }
+      
+      res.send("Su producto ha sido creado con éxito")
    } catch (error) {
-      res.send(`Error in route /product ${error}`);
+      res.status(404).json(`Error in route /product ${error}`);
    }
-   res.status(201).send(`A new ${category.substr(0, category.length - 1)} has been added`)
 });
 
 //Delete a product
@@ -90,12 +92,12 @@ router.delete('/:id', async (req, res) => {
    const { id } = req.params;
    try {
       const elem = await Product.destroy({
-         where: { id: parseInt(id) }
+         where: { id }
       });
+      res.send('Product has been deleted');
    } catch (error) {
-      res.send(`Error in route.delete /product/:id ${error}`);
+      res.status(404).send(`Error in route.delete /product/:id ${error}`);
    }
-   res.send('Product has been deleted');
 });
 
 //get to products and filters
@@ -120,38 +122,66 @@ router.get('/', async (req, res) => {
       if (name) {
          name = firstUpperCase(name.toLowerCase())
          let nombre = await filtrar.name(name)
-         return res.json(nombre)
+         if(typeof nombre === "string"){
+            return res.status(404).send(nombre)
+         } else {
+            return res.json(nombre)
+         }
       }
 
       if (id) {
          const key = await filtrar.id(id)
-         return res.json(key)
+         if(typeof key === "string"){
+            return res.status(404).send(key)
+         } else {
+            return res.json(key)
+         }
       }
 
       if (brand) {
          brand = firstUpperCase(brand.toLowerCase())
          const marca = await filtrar.brand(brand)
-         return res.json(marca)
+         if(typeof marca === "string"){
+            return res.status(404).send(marca)
+         } else {
+            return res.json(marca)
+         }
       }
 
       if (price) {
          const costo = await filtrar.price(price)
-         return res.json(costo)
+         if(typeof costo === "string"){
+            return res.status(404).send(costo)
+         } else {
+            return res.json(costo)
+         }
       }
 
       if (year) {
          const edad = await filtrar.year(year)
-         return res.json(edad)
+         if(typeof edad === "string"){
+            return res.status(404).send(edad)
+         } else {
+            return res.json(edad)
+         }
       }
 
       if (rating) {
          const start = await filtrar.rating(rating)
-         return res.json(start)
+         if(typeof start === "string"){
+            return res.status(404).send(start)
+         } else {
+            return res.json(start)
+         }
       }
 
       if (stock) {
          const disponibles = await filtrar.stock(stock)
-         return res.json(disponibles)
+         if(typeof disponibles === "string"){
+            return res.status(404).send(disponibles)
+         } else {
+            return res.json(disponibles)
+         }
       }
 
       //════════════════════════════════════════════════════════════════════════════
@@ -188,27 +218,47 @@ router.get('/', async (req, res) => {
 
       if (azBrand) {
          const sort = await filtrar.azBrand(azBrand)
-         return res.json(sort)
+         if(typeof sort === "string"){
+            return res.status(404).send(sort)
+         } else {
+            return res.json(sort)
+         }
       }
 
       if (money) {
          const dolar = await filtrar.money(money)
-         return res.json(dolar)
+         if(typeof dolar === "string"){
+            return res.status(404).send(dolar)
+         } else {
+            return res.json(dolar)
+         }
       }
 
       if (age) {
          const old = await filtrar.age(age)
-         return res.json(old)
+         if(typeof old === "string"){
+            return res.status(404).send(old)
+         } else {
+            return res.json(old)
+         }
       }
 
       if (stockSort) {
          const amount = await filtrar.stockSort(stockSort)
-         return res.json(amount)
+         if(typeof amount === "string"){
+            return res.status(404).send(amount)
+         } else {
+            return res.json(amount)
+         }
       }
 
       //devuelve todos los productos de manera predeterminada
       const all = await filtrar.allProducts()
-      return res.json(all)
+      if(all){
+         return res.json(all)
+      } else {
+         return res.status(404).json(all)
+      }
    }
    catch (error) {
       console.log(error)
@@ -219,38 +269,38 @@ router.get('/', async (req, res) => {
 //Update a product
 router.put('/:id', async (req, res) => {
    const { id } = req.params;
-   let { name, description, brand, price, year, stock, picture, category, subcategory, grape } = req.body;
+   let { name, description, brand, price, year, stock, category, subcategory, grape } = req.body;
    try {
-      let Prod = await Product.findOne({
-         where: { id: parseInt(id) }
+      let prod = await Product.findOne({
+         where: { id }
       })
-      if (Prod.name) {
+      if (prod.name) {
          let changes = [];
          if (name) {
-            Prod.name = name;
+            prod.name = name;
             changes.push('name')
          };
          if (description) {
-            Prod.description = description;
+            prod.description = description;
             changes.push('description')
          }
          if (brand) {
-            Prod.brand = brand;
+            prod.brand = brand;
             changes.push('brand')
          }
          if (price) {
-            Prod.price = price;
+            prod.price = price;
             changes.push('price')
          }
          if (year) {
-            Prod.year = year;
+            prod.year = year;
             changes.push('year')
          }
          if (stock) {
-            Prod.stock = stock;
+            prod.stock = stock;
             changes.push('stock')
          }
-         await Prod.save(changes);
+         await prod.save(changes);
       }
       //Update Category
       if (category) {
@@ -258,9 +308,9 @@ router.put('/:id', async (req, res) => {
             where: { name: category }
          })
          if (catProd === null) {
-            res.send('Error in route.Put /product/:id Category not found.');
+            res.status(400).send('Error in route.Put /product/:id Category not found.');
          }
-         await catProd.addProduct(Prod)
+         await catProd.addProduct(prod)
       }
       //Update SubCategory
       if (subcategory) {
@@ -268,9 +318,9 @@ router.put('/:id', async (req, res) => {
             where: { type: subcategory }
          })
          if (subCatProd === null) {
-            res.send('Error in route.Put /product/:id SubCategory not found.');
+            res.status(400).send('Error in route.Put /product/:id SubCategory not found.');
          }
-         await subCatProd.addProduct(Prod)
+         await subCatProd.addProduct(prod)
       }
       //Update Grape
       if (grape) {
@@ -278,19 +328,19 @@ router.put('/:id', async (req, res) => {
             where: { name: grape }
          })
          if (grapeProd === null) {
-            res.send('Error in route.Put /product/:id Grape not found.');
+            res.status(400).send('Error in route.Put /product/:id Grape not found.');
          }
-         await grapeProd.addProduct(Prod)
+         await grapeProd.addProduct(prod)
       }
 
       res.send('Product has been updated.');
    } catch (error) {
-      res.send(`Error in route.put /product/:id ${error}`);
+      res.status(400).send(`Error in route.put /product/:id ${error}`);
    }
 });
 
 //cloudinary route
-router.get('/cloudinary', async (req, res) => {
+router.get('/cloudinary', (req, res) => {
    cloudinary.config({
       cloud_name: api_name,
       api_key: api_key,
