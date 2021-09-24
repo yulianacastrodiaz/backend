@@ -13,12 +13,8 @@ const sequelize = new Sequelize({
   host: DB_HOST,
   port: 5432,
   dialect: "postgres",
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  },
+  logging: false, // set to console.log to see the raw SQL queries
+  native: false,
 });
 const basename = path.basename(__filename);
 
