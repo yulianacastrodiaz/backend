@@ -12,30 +12,23 @@ module.exports = {
     },
 
     name: async function (name) {
-
-        // let producto = await Product.findOne({
-        //     where: { name: name }
-        // })
         let data = await this.allProducts()
         const nombre = data.filter(p => p.name.includes(name))
-        return (nombre.length > 0) ? (nombre)
+        return (nombre.length > 0) ? (nombre[0])
             : (`En nuestro catalogo no existen productos que coincidan con el termnino ${nombre}`)
     },
 
     id: async function (id) {
-        let data = await this.allProducts()
-        id = parseInt(id)
-        if (typeof id !== "number") { return (`El id ${id} ingresado, no es del tipo numerico`) }
-        let byId = data.filter(p => p.id === id)
-        return (byId.length > 0) ? (byId)
+        let byId = await Product.findByPk(id)
+        return (byId) ? (byId)
             : (`No tenemos existencia de un producto con ${id} como id`)
     },
 
-    brand: async function (brand){
+    brand: async function (brand) {
         let data = await this.allProducts()
         const marca = data.filter(p => p.brand.includes(brand))
         return (marca.length > 0) ? (marca)
-        : (`En nuestro catalogo no existen productos que coincidan con la marca ${brand}`)
+            : (`En nuestro catalogo no existen productos que coincidan con la marca ${brand}`)
     },
 
     price: async function (price) {
@@ -64,13 +57,13 @@ module.exports = {
             : (`No encontramos coincidencia exacta de un producto con el rating ${rating}`)
     },
 
-    stock: async function (stock){
+    stock: async function (stock) {
         let data = await this.allProducts()
         stock = parseInt(stock)
-        if(typeof stock !== "number") { return `El stock ${stock} ingresado no es del tipo numerico`}
-        let byStock = data.filter(p=>p.stock === stock)
+        if (typeof stock !== "number") { return `El stock ${stock} ingresado no es del tipo numerico` }
+        let byStock = data.filter(p => p.stock === stock)
         return (byStock.length > 0) ? (byStock)
-        : (`No encontramos coincidencia exacta de un producto con el stock ${stock}`)
+            : (`No encontramos coincidencia exacta de un producto con el stock ${stock}`)
 
     },
 
@@ -193,46 +186,4 @@ module.exports = {
             return ("Esta ruta aun no tiene asfalto, a donde creen que van?")
         }
     }
-
-
 }
-
-
-// //filtro por subcategoria de vinos (red, white & pink)
-// router.get('/subcategory', async (req, res) => {
-
-//     try {
-//         let { type } = req.query
-//         if (type) {
-//             type = type.toLowerCase()
-//             const subCategoria = await SubCategory.findAll({
-//                 where: { type }
-//             })
-//             return (subCategoria) ? res.json(subCategoria)
-//                 : res.status(404).json(`La subcategoria ${type} es inexistente en este ecomerce\nComuniquese con la gente del backend`)
-//         }
-//         const allsubcategorias = await SubCategory.findAll()
-//         res.json(allsubcategorias)
-//     }
-//     catch (error) { res.status(404).json(error) }
-
-// })
-
-
-// //filtro por tipo de uvas ( hay seteadas 7)
-// router.get('/grape', async (req, res) => {
-//     try {
-//         let { name } = req.query
-//         if (name) {
-//             name = firstUpperCase(name.toLowerCase())
-//             const uva = await Grape.findAll({
-//                 where: { name }
-//             })
-//             return (uva) ? res.json(uva)
-//                 : res.status(404).json(`No tenemos existencias en nuestro catalogo del tipo de uva que estas buscando`)
-//         }
-//         const alluvas = await Grape.findAll()
-//         res.json(alluvas)
-//     }
-//     catch (error) { res.status(404).json(error) }
-// })
