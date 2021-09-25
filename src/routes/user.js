@@ -5,10 +5,11 @@ const passport = require('passport');
 require('../passport.js')
 const router = Router();
 
+
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', (err, user, info) => {
     if (err) throw err;
-    if (!user) res.send('El usuario no existe');
+    if (!user) res.status(404).send('El usuario no existe');
     else {
       req.logIn(user, (err) => {
         if (err) throw err;
@@ -22,7 +23,7 @@ router.post('/login', (req, res, next) => {
 router.get('/logout',
 function (req, res) {
   req.logout();
-  res.redirect('/login');
+  res.redirect('/');
 });
 
 router.get('/profile', (req, res) => {

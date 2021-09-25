@@ -6,19 +6,16 @@ require('../auth/google');
 
 const router = Router();
 
-router.get('/', (req, res) => {
-  res.send('<a href="/auth/google">Authenticate with Google</a>');
-});
+// router.get('/', (req, res) => {
+//   res.send('<a href="/auth/google">Authenticate with Google</a>');
+// });
 
 router.get('/google',
 passport.authenticate('google', { scope: ['https://www.googleapis.com/auth/plus.login'] }));
 
-
-router.get('/google/callback', 
-passport.authenticate('google', { failureRedirect: '/login' }),
-function(req, res) {
-  res.redirect('/');
-});
+router.get('/google/callback',
+  passport.authenticate('google'),
+);
 
 router.get('/logout', (req, res) => {
   // req.logout();

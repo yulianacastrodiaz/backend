@@ -20,7 +20,7 @@ router.use('/subcategories', subCategoriesRouter);
 router.use('/product', productRouter);
 router.use('/grapes', grapeRouter);
 router.use('/reviews', reviewRouter);
-router.use('/', login)
+router.use('/user', login)
 router.use('/auth', authRouter);
 
 module.exports = router;
