@@ -16,6 +16,7 @@ const reviewRouter = require('./reviews')
 const signupRouter = require('./signup')
 const paypal = require ('./paypal');
 const mepa = require ('./mepa');
+const sendmail = require('./sendmail.js');
 
 // Configurar los routers
 // Ejemplo: router.use('/auth', authRouter);
@@ -32,6 +33,7 @@ router.use('/signup', signupRouter)
 router.use('/auth', authRouter);
 router.use('/paypal', paypal);
 router.use('/mepa', mepa);
+router.use('/mail',sendmail);
 
 module.exports = router;
 
