@@ -302,10 +302,10 @@ function preloadProducts(){
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632248092/trivento-white-malbec.jpg'
   },{
     name: 'Via Revolucionaria Bonarda Pura',
-    description: 'Bodega Passionate Wine',
-    brand:'Es un vino con mucha acidez, corto y algo maduro en su expresión frutal. Con taninos firmes pero nada agresivos, ' +
-          'que le aportan cierto carácter a cada trago. Por su paso vibrante y entretenido es ideal para acompañar asados, ' +
-          'picadas, pizzas y empanadas.',
+    description: 'Es un vino con mucha acidez, corto y algo maduro en su expresión frutal. Con taninos firmes pero nada agresivos, ' +
+    'que le aportan cierto carácter a cada trago. Por su paso vibrante y entretenido es ideal para acompañar asados, ' +
+    'picadas, pizzas y empanadas.',
+    brand: 'Bodega Passionate Wine',
     price:1200,
     year:2020,
     rating:0,
