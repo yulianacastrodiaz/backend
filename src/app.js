@@ -32,8 +32,12 @@ server.use((req, res, next) => {
   next();
 })
 
+require('./auth/google')
+
 server.use(passport.initialize());
 server.use(passport.session());
+
+server.use('/api', passport.authenticate('jwt', { session : false }));
 
 server.use('/', routes);
 
