@@ -30,7 +30,6 @@ server.use((req, res, next) => {
 })
 
 require('./auth/google')
-require('./auth/verifytoken');
 
 server.use(passport.initialize());
 server.use(passport.session());
