@@ -36,4 +36,3 @@ router.use('/mepa', mepa);
 router.use('/mail',sendmail);
 
 module.exports = router;
-
