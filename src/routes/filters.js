@@ -2,6 +2,7 @@
 
 
 const { Product } = require('../db')
+const { Category } = require('../db')
 
 module.exports = {
 
@@ -11,10 +12,21 @@ module.exports = {
         return prod
     },
 
+    category: async function(category){
+        let data = await this.allProducts()
+        const categoryDB = await Category.findOne({ where: {name: category}})
+        if(categoryDB){
+           let allProducts = data.filter(p => p.categoryId === categoryDB.id)
+           return allProducts;
+        } else {
+            return "Esta categoría no existe"
+        }
+    },
+
     name: async function (name) {
         let data = await this.allProducts()
         const nombre = data.filter(p => p.name.includes(name))
-        return (nombre.length > 0) ? (nombre[0])
+        return (nombre.length > 0) ? (nombre)
             : (`En nuestro catalogo no existen productos que coincidan con el termnino ${nombre}`)
     },
 
