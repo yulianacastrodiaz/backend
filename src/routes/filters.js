@@ -12,7 +12,6 @@ module.exports = {
     },
 
     name: async function (name) {
-        console.log(name)
         let data = await this.allProducts()
         const nombre = data.filter(p => p.name.includes(name))
         return (nombre.length > 0) ? (nombre)
