@@ -25,7 +25,7 @@ function preloadProducts(){
     
     brand:"Johnnie Walker",
     price:12.000,
-    year:0,
+    year:2004,
     rating:0,
     stock:10,
     picture:"https://res.cloudinary.com/wineec/image/upload/v1632241219/jw18.jpg"
@@ -38,7 +38,7 @@ function preloadProducts(){
                  'a un nuevo nivel de intensidad.',  
     brand:"Johnnie Walker",
     price:3750,
-    year:0,
+    year:2015,
     rating:0,
     stock:20,
     picture:"https://res.cloudinary.com/wineec/image/upload/v1632241267/jwdb.jpg"
@@ -48,7 +48,7 @@ function preloadProducts(){
                  'no un whisky Blended (Single Malts con Single Grains).',
     brand:'Johnnie Walker',
     price:8500,
-    year:0,
+    year:2016,
     rating:0,
     stock:20,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632241303/jwgl.jpg'
@@ -57,7 +57,7 @@ function preloadProducts(){
     description: 'Botella de 700cc. Un excelente producto por su relación calidad/precio. Ideal para regalo',
     brand:'Chivas Regal',
     price:5900,
-    year:0,
+    year:2018,
     rating:0,
     stock:20,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632240196/Chivas%20Regal%20Mizunara.webp'
@@ -372,7 +372,7 @@ function preloadProducts(){
                  'precio-calidad.',
     brand:'Aberlour',
     price:6050,
-    year:0,
+    year:2004,
     rating:0,
     stock:20,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632234943/Aberlour_Single_Malt_12.webp'
@@ -383,7 +383,7 @@ function preloadProducts(){
                  'Equilibrado en cuanto a su acidez, de buena persistencia.',
     brand:'Bodega Trivento',
     price:600,
-    year:0,
+    year:2009,
     rating:0,
     stock:20,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632249594/espumante-trivento-brut-nature.jpg'
@@ -393,7 +393,7 @@ function preloadProducts(){
                  'lo que da como resultado un producto de altísima calidad.',
     brand:'Bodega Chandon',
     price:2200,
-    year:0,
+    year:2014,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632249515/espumante-BaronBcuvee.webp'
@@ -402,7 +402,7 @@ function preloadProducts(){
     description: '',
     brand:'',
     price:2100,
-    year:0,
+    year:2019,
     rating:0,
     stock:36,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632249483/espumante%3Dluigi-bosca-brut.webp'
@@ -445,7 +445,7 @@ function preloadProducts(){
                  'dar a luz a un tostado delicioso. Ideal para acompañar carnes asadas y pastas con salsas especiadas.',
     brand:'Patagonia',
     price:270,
-    year:0,
+    year:2019,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632324965/patagonia-amber-lager.webp'
@@ -456,7 +456,7 @@ function preloadProducts(){
                  'ideal para acompañar carnes blancas',
     brand:'Patagonia',
     price:270,
-    year:0,
+    year:2019,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632325792/patagonia-bohemian-pilsener.webp'
@@ -467,7 +467,7 @@ function preloadProducts(){
                  'donde se destaca la esencia de la levadura que remite a café y su color es negro intenso.',
     brand:'Quilmes',
     price:160,
-    year:0,
+    year:2019,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632326102/quilmes-stout.webp'
@@ -478,7 +478,7 @@ function preloadProducts(){
                  'amargor balanceado.',
     brand:'Stella Artois',
     price:200,
-    year:0,
+    year:2020,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632326287/stella-artois-noire.webp'
@@ -489,7 +489,7 @@ function preloadProducts(){
                  'y su inigualable calidad.',
     brand:'Heineken',
     price:230,
-    year:0,
+    year:2021,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632326460/heineken-tradicional.webp'
@@ -499,7 +499,7 @@ function preloadProducts(){
                 'con una rica herencia que se remonta nada menos que al año 1366 ',
     brand:'Stella Artois',
     price:220,
-    year:0,
+    year:2020,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632326571/stella-artois-tradicional.webp'
@@ -509,7 +509,7 @@ function preloadProducts(){
                  ' caramelo tostado y frutas secas. Su sabor a malta caramelo es intenso, y su amargor, medio y equilibrado.',
     brand:'Beagle',
     price:350,
-    year:0,
+    year:2019,
     rating:0,
     stock:40,
     picture:'https://res.cloudinary.com/wineec/image/upload/v1632326814/beagle-red-ale.webp'
