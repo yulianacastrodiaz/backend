@@ -2,6 +2,7 @@
 
 
 const { Product } = require('../db')
+const { Category } = require('../db')
 
 module.exports = {
 
@@ -9,6 +10,17 @@ module.exports = {
     allProducts: async function () {
         let prod = await Product.findAll()
         return prod
+    },
+
+    category: async function(category){
+        let data = await this.allProducts()
+        const categoryDB = await Category.findOne({ where: {name: categoryDB}})
+        if(categoryDB){
+           let allProducts = data.filter(p => p.categoryId === categoryDB.id)
+           return allProducts;
+        } else {
+            return "Esta categoría no existe"
+        }
     },
 
     name: async function (name) {
