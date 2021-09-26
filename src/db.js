@@ -51,6 +51,8 @@ Category.hasMany(Product)
 Product.belongsTo(Category)
 Grape.hasMany(Product)
 Product.belongsTo(Grape)
+User.hasMany(Review)
+Review.belongsTo(User)
 // User.hasMany(User) 
 
 module.exports = {
