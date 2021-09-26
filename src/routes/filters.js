@@ -14,7 +14,7 @@ module.exports = {
 
     category: async function(category){
         let data = await this.allProducts()
-        const categoryDB = await Category.findOne({ where: {name: categoryDB}})
+        const categoryDB = await Category.findOne({ where: {name: category}})
         if(categoryDB){
            let allProducts = data.filter(p => p.categoryId === categoryDB.id)
            return allProducts;
