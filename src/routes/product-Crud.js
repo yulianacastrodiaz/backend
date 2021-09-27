@@ -63,23 +63,44 @@ router.post('/', async (req, res) => {
          }
       }
 
-      const newproduct = await Product.create({
-         name: firstUpperCase(name.toLowerCase()),
-         description,
-         brand: firstUpperCase(brand.toLowerCase()),
-         price,
-         year,
-         rating,
-         stock,
-         picture
-      })
+      if(stock === 0){
+         const newproduct = await Product.create({
+            name: firstUpperCase(name.toLowerCase()),
+            description,
+            brand: firstUpperCase(brand.toLowerCase()),
+            price,
+            year,
+            rating,
+            picture
+         })
 
-      await categoryProd.addProduct(newproduct)
-      await subCatProd.addProduct(newproduct)
+         await categoryProd.addProduct(newproduct)
+         await subCatProd.addProduct(newproduct)
 
-      if (category === 'wines') {
-         await grapes.addProduct(newproduct)
+         if (category === 'wines') {
+            await grapes.addProduct(newproduct)
+         }
+      } else {
+         const newproduct = await Product.create({
+            name: firstUpperCase(name.toLowerCase()),
+            description,
+            brand: firstUpperCase(brand.toLowerCase()),
+            price,
+            year,
+            stock,
+            rating,
+            picture
+         })
+
+         await categoryProd.addProduct(newproduct)
+         await subCatProd.addProduct(newproduct)
+
+         if (category === 'wines') {
+            await grapes.addProduct(newproduct)
+         }
       }
+
+
 
       res.send("Su producto ha sido creado con éxito")
    } catch (error) {
