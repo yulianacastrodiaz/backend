@@ -7,31 +7,10 @@ const mercadopago = require('mercadopago');
 const { MERPA_PUBLIC_KEY, MERPA_ACCS_TOKEN } = process.env
 
 
-
 // seteo credenciales
 mercadopago.configure({
   access_token: MERPA_ACCS_TOKEN
 });
-
-//objeto de preferencias
-/*let preference = {
-  items: [
-    {
-      title: 'Pack de x6 Cerveza Corona lata 473ml',
-      unit_price: 420,
-      quantity: 1,
-    }
-  ],
-  back_urls: {
-    "success": "http://localhost:3001/mepa/feedback",
-    "failure": "http://localhost:3001/mepa/feedback",
-    "pending": "http://localhost:3001/mepa/feedback",
-  },
-  auto_return: 'approved',
-};*/
-
-
-
 
 router.post('/get-payment', (req, res) => {
 
@@ -55,31 +34,22 @@ router.post('/get-payment', (req, res) => {
     auto_return: 'approved',
   };
 
-
-  /* const response = await mercadopago.preferences.create(preference)
-  const preferenceId= response.body.id
-    .then(function (response) {
-      // Este valor reemplazará el string "<%= global.id %>" en tu HTML
-      global.id = response.body.id;
-    }).catch(function (error) {
-      console.log(error);
-    });
-
-    res.send({preferenceId}) */
-
     mercadopago.preferences.create(preference)
 		.then(function (response) {
-			res.json({id :response.body.id})
+			// res.json({id :response.body.id})
+      let sandbox = response.response.sandbox_init_point
+			res.json(sandbox)
 		}).catch(function (error) {
 			console.log(error);
 		});
 
-
-
 });
 
-router.post('/feedback', (req, res) => {
+router.get('/feedback', (req, res) => {
   let {payment_id, status, merchant_order_id} = req.query
+  //la compra se cancelo
+  if(payment_id === "null"){return res.json({ msg :`Ocurrio un error al intentar realizar el pago`})}
+  //caso diferente de compra cancelada...
   res.json({
     Payment: payment_id,
     Status: status,

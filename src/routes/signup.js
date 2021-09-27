@@ -8,7 +8,7 @@ const router = Router();
 
 router.post('/', async (req, res) => {
   const { username, mail, password, name, lastname } = req.body;
-  let passwordHashed = bcrypt.hashSync(password, authConfig.rounds)
+  let passwordHashed = bcrypt.hashSync(password, parseInt(authConfig.rounds))
 
   if (!username) {
     return res.status(400).json({ msg: "Ingresa un nombre de usuario" });
