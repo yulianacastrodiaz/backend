@@ -16,19 +16,19 @@ router.post('/', async (req, res) => {
    let { name, description, brand, price, year, rating, stock, picture, category, subcategory, grape } = req.body;
 
    if (!name) {
-      res.status(400).json({ error: 'Name is required'})
+      res.status(400).json({ error: 'Name is required' })
    }
    if (!description) {
-      res.status(400).json({ error:'Description is required'})
+      res.status(400).json({ error: 'Description is required' })
    }
    if (isNaN(year)) {
-      res.status(400).json({ error: 'Year is not a number'})
+      res.status(400).json({ error: 'Year is not a number' })
    }
    if (!brand) {
-      res.status(400).json({ error:'Brand is required'})
+      res.status(400).json({ error: 'Brand is required' })
    }
    if (!price) {
-      res.status(400).json({ error:'Price is required'})
+      res.status(400).json({ error: 'Price is required' })
    }
    if (isNaN(stock) || stock < 0) {
       res.status(400).json({ error: `Error in stock value: ${stock}` })
@@ -62,25 +62,46 @@ router.post('/', async (req, res) => {
             res.status(400).json({ error: 'Invalid Grape' })
          }
       }
-      
-      const newproduct = await Product.create({
-         name: firstUpperCase(name.toLowerCase()),
-         description,
-         brand: firstUpperCase(brand.toLowerCase()),
-         price,
-         year,
-         rating,
-         stock,
-         picture
-      })
 
-      await categoryProd.addProduct(newproduct)
-      await subCatProd.addProduct(newproduct)
+      if(stock === 0){
+         const newproduct = await Product.create({
+            name: firstUpperCase(name.toLowerCase()),
+            description,
+            brand: firstUpperCase(brand.toLowerCase()),
+            price,
+            year,
+            rating,
+            picture
+         })
 
-      if (category === 'wines') {
-         await grapes.addProduct(newproduct)
+         await categoryProd.addProduct(newproduct)
+         await subCatProd.addProduct(newproduct)
+
+         if (category === 'wines') {
+            await grapes.addProduct(newproduct)
+         }
+      } else {
+         const newproduct = await Product.create({
+            name: firstUpperCase(name.toLowerCase()),
+            description,
+            brand: firstUpperCase(brand.toLowerCase()),
+            price,
+            year,
+            stock,
+            rating,
+            picture
+         })
+
+         await categoryProd.addProduct(newproduct)
+         await subCatProd.addProduct(newproduct)
+
+         if (category === 'wines') {
+            await grapes.addProduct(newproduct)
+         }
       }
-      
+
+
+
       res.send("Su producto ha sido creado con éxito")
    } catch (error) {
       res.status(404).json(`Error in route /product ${error}`);
@@ -104,6 +125,7 @@ router.delete('/:id', async (req, res) => {
 router.get('/', async (req, res) => {
    try {
       // FILTROS GENERICOS
+      let { category } = req.query
       //devuelve coincidencias aproximadas por nombre
       let { name } = req.query
       //devuelve por coincidencia exacta de id
@@ -122,16 +144,26 @@ router.get('/', async (req, res) => {
       if (name) {
          name = firstUpperCase(name.toLowerCase())
          let nombre = await filtrar.name(name)
-         if(typeof nombre === "string"){
+         if (typeof nombre === "string") {
             return res.status(404).send(nombre)
          } else {
             return res.json(nombre)
          }
       }
 
+      if (category) {
+         category = category.toLocaleLowerCase()
+         let allProducts = await filtrar.category(category)
+         if (typeof allProducts === 'string') {
+            return res.status(404).send(allProducts)
+         } else {
+            return res.json(allProducts)
+         }
+      }
+
       if (id) {
          const key = await filtrar.id(id)
-         if(typeof key === "string"){
+         if (typeof key === "string") {
             return res.status(404).send(key)
          } else {
             return res.json(key)
@@ -141,7 +173,7 @@ router.get('/', async (req, res) => {
       if (brand) {
          brand = firstUpperCase(brand.toLowerCase())
          const marca = await filtrar.brand(brand)
-         if(typeof marca === "string"){
+         if (typeof marca === "string") {
             return res.status(404).send(marca)
          } else {
             return res.json(marca)
@@ -150,7 +182,7 @@ router.get('/', async (req, res) => {
 
       if (price) {
          const costo = await filtrar.price(price)
-         if(typeof costo === "string"){
+         if (typeof costo === "string") {
             return res.status(404).send(costo)
          } else {
             return res.json(costo)
@@ -159,7 +191,7 @@ router.get('/', async (req, res) => {
 
       if (year) {
          const edad = await filtrar.year(year)
-         if(typeof edad === "string"){
+         if (typeof edad === "string") {
             return res.status(404).send(edad)
          } else {
             return res.json(edad)
@@ -168,7 +200,7 @@ router.get('/', async (req, res) => {
 
       if (rating) {
          const start = await filtrar.rating(rating)
-         if(typeof start === "string"){
+         if (typeof start === "string") {
             return res.status(404).send(start)
          } else {
             return res.json(start)
@@ -177,7 +209,7 @@ router.get('/', async (req, res) => {
 
       if (stock) {
          const disponibles = await filtrar.stock(stock)
-         if(typeof disponibles === "string"){
+         if (typeof disponibles === "string") {
             return res.status(404).send(disponibles)
          } else {
             return res.json(disponibles)
@@ -218,7 +250,7 @@ router.get('/', async (req, res) => {
 
       if (azBrand) {
          const sort = await filtrar.azBrand(azBrand)
-         if(typeof sort === "string"){
+         if (typeof sort === "string") {
             return res.status(404).send(sort)
          } else {
             return res.json(sort)
@@ -227,7 +259,7 @@ router.get('/', async (req, res) => {
 
       if (money) {
          const dolar = await filtrar.money(money)
-         if(typeof dolar === "string"){
+         if (typeof dolar === "string") {
             return res.status(404).send(dolar)
          } else {
             return res.json(dolar)
@@ -236,7 +268,7 @@ router.get('/', async (req, res) => {
 
       if (age) {
          const old = await filtrar.age(age)
-         if(typeof old === "string"){
+         if (typeof old === "string") {
             return res.status(404).send(old)
          } else {
             return res.json(old)
@@ -245,7 +277,7 @@ router.get('/', async (req, res) => {
 
       if (stockSort) {
          const amount = await filtrar.stockSort(stockSort)
-         if(typeof amount === "string"){
+         if (typeof amount === "string") {
             return res.status(404).send(amount)
          } else {
             return res.json(amount)
@@ -254,7 +286,7 @@ router.get('/', async (req, res) => {
 
       //devuelve todos los productos de manera predeterminada
       const all = await filtrar.allProducts()
-      if(all){
+      if (all) {
          return res.json(all)
       } else {
          return res.status(404).json(all)
