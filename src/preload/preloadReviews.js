@@ -13,7 +13,43 @@ function preloadReviews(){
   },{
     comment: "Esplendido. Hace muchos años que lo tomo y espero seguir muchos mas, tiene buen color, buen gusto, me encanta la botella y la caja, ademas tengo un botellon de 4,5 litros que compre abordo de un crucero y es precioso, ademas lo probe en 1952 en un buque americano y ya no lo deje, habiendo probado varios distintos wyskies-.",
     start: 5,
-  },]
+  },{
+    comment: "Esplendido. Hace muchos años que lo tomo y espero seguir muchos mas, tiene buen color, buen gusto, me encanta la botella y la caja, ademas tengo un botellon de 4,5 litros que compre abordo de un crucero y es precioso, ademas lo probe en 1952 en un buque americano y ya no lo deje, habiendo probado varios distintos wyskies-.",
+    start: 5,
+  },{
+    comment: "Excelente, Un whiskaso, de esos que te vuelan la capocha y decís uepa! pega durazno como pase del diegote y amaneces en al otro día en jose c paz. Como mi novia que era de jose c paz. Te extraño volve antonela, no te engaño mas.",
+    start: 5,
+  },{
+    comment: "Me quedo con el jameson o el johnny walker red label y se consigue 800 o el mejor el jack daniels. Aclaremos de los de medio pelo. Este parece un blenders! y lo que me paració raro es que la botella sobresale del estuche de carton. Me da desconfianza.",
+    start: 2,
+  },{
+    comment: "Un pack de rutini único con dos vinos muy buenos como el cabernet-malbec y el malbec los dos cosecha 2018 y el sauvignon blanc cosecha 2020. En boca y nariz los dos tintos tienen un cuerpo complejo y las notas que le saque fueron especias y frutas rojas muy rico la verdad, recomendables para acompañar con asado. Y el blanco muy bueno y fresco y se le sienten notas de frutas tropicales recomiendo acompañar con pescado.",
+    start: 5,
+  },{
+    comment: "Muy buen producto. Prolijamente presentado, realmente es para quedar muy bien como regalo para una ocasión especial.",
+    start: 5,
+  },{
+    comment: "Todo excelente! de lo mejor de la gama trumpeter.",
+    start: 5,
+  },{
+    comment: "Un clasico que no tiene competidores, Cualquier otro vino debe compararse con este, que en la relación calidad precio es insuperable. Si ustedes hacen una prueba a ciegas este va a estar entre los tres finalistas, hoy cuesta un dólar la botella.",
+    start: 5,
+  },{
+    comment: "Es un vino fresco, agradable de tomar. Liviano, para acompañar comida con pescados o mariscos, también empanadas. Está trabajado como un vino del rin y extraño los sabores frutales de esta cepa.",
+    start: 4,
+  },{
+    comment: "Vino torrontés frutado, riquísimo. Para mi gusto el mejor torrontés salteño.",
+    start: 5,
+  },{
+    comment: "Muy buen vino, ideal para tomarlo en reuniones bien fresco, lo vengo comprando desde ya hace un tiempo",
+    start: 5,
+  },{
+    comment: "Bueno , dulce esta de acuerdo al valor.",
+    start: 3,
+  },{
+    comment: "Aclaro que no soy un entendido en el tema, pero esta versión de caskmates ipa es una gran entrada al mundo de los whiskeys. Por muy buen precio y lo considero suave en comparación con la versión stout. Es quien me acompaña durante este invierno.",
+    start: 5,
+  }]
 
   try {
     const newReviews = reviews.map(async(r) => {
