@@ -104,7 +104,7 @@ router.get('/:id', async(req, res) => {
    const { id } = req.params;
    try {
       
-      if(id === undefined || id === null){
+      if(id === "undefined" || id === null){
          return res.status(404).json({ msg: "Debes pasar un id" })
       }
       if (id) {
