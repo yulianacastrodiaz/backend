@@ -100,6 +100,27 @@ router.delete('/:id', async (req, res) => {
    }
 });
 
+router.get('/:id', async(req, res) => {
+   const { id } = req.params;
+   try {
+      
+      if(id === undefined || id === null){
+         return res.status(404).json({ msg: "Debes pasar un id" })
+      }
+      if (id) {
+         const key = await filtrar.id(id)
+         if (typeof key === "string") {
+            return res.status(404).send(key)
+         } else {
+            return res.json(key)
+         }
+      }
+   } catch (error) {
+      console.log(error)
+      res.status(404).json(error)
+   }
+})
+
 //get to products and filters
 router.get('/', async (req, res) => {
    try {
@@ -107,8 +128,6 @@ router.get('/', async (req, res) => {
       let { category } = req.query
       //devuelve coincidencias aproximadas por nombre
       let { name } = req.query
-      //devuelve por coincidencia exacta de id
-      let { id } = req.query
       //devuelve por coincidencia exacta de marca
       let { brand } = req.query
       //devuelve por coincidencia exacta de precio
@@ -137,18 +156,6 @@ router.get('/', async (req, res) => {
             return res.status(404).send(allProducts)
          } else {
             return res.json(allProducts)
-         }
-      }
-
-      if (id) {
-         if(id === undefined || id === null){
-            return res.status(404).json({ msg: "Debes pasar un id" })
-         }
-         const key = await filtrar.id(id)
-         if (typeof key === "string") {
-            return res.status(404).send(key)
-         } else {
-            return res.json(key)
          }
       }
 
