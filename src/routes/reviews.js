@@ -7,7 +7,7 @@ const router = Router();
 try {
   router.get('/:id', async(req, res) => {
     const { id } = req.params
-    if(id){
+    if(id !== undefined || id !== null){
       const product = await Product.findOne({ where: { id }, include: Review })
       if(product.dataValues.reviews.length > 0){
         res.json(product)
