@@ -7,11 +7,15 @@ const router = Router();
 try {
   router.get('/:id', async(req, res) => {
     const { id } = req.params
-    const product = await Product.findOne({ where: { id }, include: Review })
-    if(product.dataValues.reviews.length > 0){
-      res.json(product)
+    if(id){
+      const product = await Product.findOne({ where: { id }, include: Review })
+      if(product.dataValues.reviews.length > 0){
+        res.json(product)
+      } else {
+        res.status(404).json({ msg: "El prodcuto no tiene reviews" })
+      }
     } else {
-      res.status(404).json({ msg: "El prodcuto no tiene reviews" })
+      res.status(404).json({ msg: "Debes pasar un id" })
     }
   })
 } catch (error) {
