@@ -140,6 +140,10 @@ router.get('/', async (req, res) => {
          }
       }
 
+      if(id === undefined || id === null){
+         return res.status(404).json({ msg: "Debes pasar un id" })
+      }
+
       if (id) {
          const key = await filtrar.id(id)
          if (typeof key === "string") {
