@@ -21,15 +21,15 @@ try {
 
 try {
   router.put('/', async(req, res) => {
-    const { newcomment, newstart, id } = req.body
+    const { newcomment, newstars, id } = req.body
     const review = await Review.findByPk(id)
 
     if(newcomment){
       review.comment = newcomment
     }
 
-    if(newstart){
-      review.start = newstart
+    if(newstars){
+      review.stars = newstars
     }
     review.save()
     res.json({msg: "Su review ha sido actualizada con éxito"})
@@ -41,11 +41,11 @@ try {
 
 try {
   router.post('/', async(req, res) => {
-    const { comment, start, product } = req.body;
+    const { comment, stars, product } = req.body;
     const p = await Product.findOne({where: { id: product } })
     const newReview = await Review.create({
       comment,
-      start
+      stars
     })
     await p.addReview(newReview)
     res.json({ msg: "Tu review ha sido publicada"})
