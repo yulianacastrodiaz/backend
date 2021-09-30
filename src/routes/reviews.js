@@ -46,6 +46,7 @@ try {
 try {
   router.post('/', async(req, res) => {
     const { comment, stars, product } = req.body;
+    if(!product) return res.status(404).json({ msg:"Debes mandar un id del producto" })
     const p = await Product.findOne({where: { id: product } })
 
     if(comment){
