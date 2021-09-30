@@ -12,7 +12,7 @@ try {
       if(product.dataValues.reviews.length > 0){
         res.json(product)
       } else {
-        res.status(404).json({ msg: "El prodcuto no tiene reviews" })
+        res.status(404).json({ msg: "El producto no tiene reviews" })
       }
     } else {
       res.status(404).json({ msg: "Debes pasar un id" })
@@ -47,12 +47,17 @@ try {
   router.post('/', async(req, res) => {
     const { comment, stars, product } = req.body;
     const p = await Product.findOne({where: { id: product } })
-    const newReview = await Review.create({
-      comment,
-      stars
-    })
-    await p.addReview(newReview)
-    res.json({ msg: "Tu review ha sido publicada"})
+
+    if(comment){
+      const newReview = await Review.create({
+        comment,
+        stars
+      })
+      await p.addReview(newReview)
+      res.json({ msg: "Tu review ha sido publicada"})
+    } else {
+      return res.status(404).json({ msg: "Debes pasar un comentario"})
+    }
   })
 } catch (error) {
   console.log(error)
