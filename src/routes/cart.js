@@ -54,7 +54,7 @@ router.put('/', async (req, res) => {
             return Promise.all(aux)
           })
           .then(() => {
-            return res.json(newCart)
+            res.send(`Su orden fue tomada con éxito. Este es el id ${newCart.id}` )
           })
           .catch((error) => {
             console.log(error)
