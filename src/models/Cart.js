@@ -8,6 +8,11 @@ module.exports = (sequelize) => {
       allowNull: false,
       primaryKey: true,
     },
+    orderid: {
+      type: DataTypes.INTEGER,
+      primaryKey: false,
+      autoIncrement: true
+    },
     state: {
       type: DataTypes.ENUM("in process", "cancelled", "finished"),
       allowNull: false,
