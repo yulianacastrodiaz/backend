@@ -64,13 +64,12 @@ router.post('/', async (req, res) => {
          }
       }
 
-      if(stock === 0){
+      if(stock === 0 && year === undefined){
          const newproduct = await Product.create({
             name: firstUpperCase(name.toLowerCase()),
             description,
             brand: firstUpperCase(brand.toLowerCase()),
             price,
-            year,
             rating,
             picture
          })
