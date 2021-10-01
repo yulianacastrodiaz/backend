@@ -28,9 +28,10 @@ router.put('/', async (req, res) => {
         }
       } else {
         if (state === null || state === undefined) state === "in process";
+        if (payment_method) payment_method = payment_method.toUpperCase()
         const newCart = await Cart.create({
           state,
-          payment_method: payment_method.toUpperCase(),
+          payment_method,
           shipping
         })
         if (newCart) {
