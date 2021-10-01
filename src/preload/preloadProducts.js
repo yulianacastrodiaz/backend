@@ -24,7 +24,7 @@ function preloadProducts(){
                  'es la elección perfecta.',
     
     brand:"Johnnie Walker",
-    price:12.000,
+    price:12000,
     year:2004,
     rating:0,
     stock:10,

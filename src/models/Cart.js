@@ -8,16 +8,30 @@ module.exports = (sequelize) => {
       allowNull: false,
       primaryKey: true,
     },
+    orderid: {
+      type: DataTypes.INTEGER,
+      primaryKey: false,
+      autoIncrement: true
+    },
     state: {
       type: DataTypes.ENUM("in process", "cancelled", "finished"),
       allowNull: false,
       defaultValue: "in process",
     },
     payment_method:{
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM("STRIPE", "PAYPAL", "MERCADOPAGO"),
+      allowNull: false
     },
     shipping:{
       type: DataTypes.STRING,
-    }
+    },
+    operationCode: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    paymentStatus:{
+      type: DataTypes.ENUM("SUCCESS", "FAILURE", "PENDING"),
+      allowNull: false
+    } 
   })
 } 
