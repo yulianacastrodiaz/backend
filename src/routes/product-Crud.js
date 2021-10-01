@@ -20,7 +20,7 @@ router.post('/', async (req, res) => {
    }
    if (!description) {
       return res.status(400).json({ error: 'Description is required' })
-   } 
+   }
    if (!brand) {
       return res.status(400).json({ error: 'Brand is required' })
    }
@@ -49,7 +49,7 @@ router.post('/', async (req, res) => {
          return res.status(400).json({ error: 'Invalid SubCategory' })
       }
 
-      if (category === 'wines') {
+      if (category.toLowerCase() === 'wines') {
          // Find Grape
          if (isNaN(year)) {
             return res.status(400).json({ error: 'Year is not a number' })
@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
          }
       }
 
-      if(stock === 0 && year === undefined){
+      if ( (category.toLowerCase() === "beers" || category.toLowerCase() === "whisky") && stock === 0) {
          const newproduct = await Product.create({
             name: firstUpperCase(name.toLowerCase()),
             description,
@@ -76,11 +76,24 @@ router.post('/', async (req, res) => {
 
          await categoryProd.addProduct(newproduct)
          await subCatProd.addProduct(newproduct)
+      }
 
-         if (category === 'wines') {
-            await grapes.addProduct(newproduct)
-         }
-      } else {
+      if ( (category.toLowerCase() === "beers" || category.toLowerCase() === "whisky") && stock !== 0) {
+         const newproduct = await Product.create({
+            name: firstUpperCase(name.toLowerCase()),
+            description,
+            brand: firstUpperCase(brand.toLowerCase()),
+            price,
+            stock,
+            rating,
+            picture
+         })
+
+         await categoryProd.addProduct(newproduct)
+         await subCatProd.addProduct(newproduct)
+      }
+
+      if (category.toLowerCase() === 'wines' && stock !== 0) {
          const newproduct = await Product.create({
             name: firstUpperCase(name.toLowerCase()),
             description,
@@ -94,13 +107,26 @@ router.post('/', async (req, res) => {
 
          await categoryProd.addProduct(newproduct)
          await subCatProd.addProduct(newproduct)
-
-         if (category === 'wines') {
-            await grapes.addProduct(newproduct)
-         }
+         await grapes.addProduct(newproduct)
       }
 
-      return res.json({ msg:"Su producto ha sido creado con éxito" })
+      if (category.toLowerCase() === 'wines' && stock === 0) {
+         const newproduct = await Product.create({
+            name: firstUpperCase(name.toLowerCase()),
+            description,
+            brand: firstUpperCase(brand.toLowerCase()),
+            price,
+            year,
+            rating,
+            picture
+         })
+
+         await categoryProd.addProduct(newproduct)
+         await subCatProd.addProduct(newproduct)
+         await grapes.addProduct(newproduct)
+      }
+
+      return res.json({ msg: "Su producto ha sido creado con éxito" })
    } catch (error) {
       res.status(404).json(`Error in route /product ${error}`);
    }
@@ -119,11 +145,11 @@ router.delete('/:id', async (req, res) => {
    }
 });
 
-router.get('/:id', async(req, res) => {
+router.get('/:id', async (req, res) => {
    const { id } = req.params;
    try {
-      
-      if(id === "undefined" || id === null){
+
+      if (id === "undefined" || id === null) {
          return res.status(404).json({ msg: "Debes pasar un id" })
       }
       if (id) {
