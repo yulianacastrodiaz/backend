@@ -30,7 +30,7 @@ router.put('/', async (req, res) => {
         if (state === null || state === undefined) state === "in process";
         const newCart = await Cart.create({
           state,
-          payment_method,
+          payment_method: payment_method.toUpperCase(),
           shipping
         })
         if (newCart) {
@@ -55,7 +55,11 @@ router.put('/', async (req, res) => {
             return Promise.all(aux)
           })
           .then(() => {
-            res.send(`Su orden fue tomada con éxito. Este es el id ${newCart.id}`)
+            const cartdb = Cart.findOne({ where: {id: newCart.id}, include: Product});
+            return cartdb;
+          })
+          .then((cartdb) => {
+            res.json({ cartdb ,msg: `Su orden fue tomada con éxito. Este es el id ${newCart.id}`})
           })
           .catch((error) => {
             console.log(error)
