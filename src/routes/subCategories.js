@@ -1,6 +1,7 @@
 const { Router } = require('express');
+const { send } = require('process');
 const { grape } = require('../db')
-const { SubCategory } = require('../db')
+const { SubCategory, Product } = require('../db')
 const { Category } = require('../db')
 
 const router = Router();
@@ -32,7 +33,7 @@ try {
       const subcategory = await SubCategory.findByPk(idsub)
       subcategory.type = newtype
       subcategory.save()
-      res.json({ msg: "Su subcategoría ha sido actualizada con éxito"})
+      res.send({ msg: "La subcategoría ha sido actualizada con éxito"})
     }
   })
 } catch (error) {
@@ -51,6 +52,27 @@ try {
 } catch (error) {
   console.log(error)
   res.status(404).json(error)
+}
+
+try {
+  router.delete('/:id', async (req, res) => {
+  const { id } = req.params;
+  if (id) {
+    const prod = await Product.findOne({
+      where: { subCategoryId : id }
+    })
+    console.log('Prod: ', prod)
+    if (prod) {
+      return res.send(`Sub Category has associated products, can't be deleted`)
+    }
+    const elem = await SubCategory.destroy({
+        where: { id }
+     });
+     res.send('SubCategory has been deleted')
+  }
+  }) 
+} catch (error) {
+     res.status(404).send(`Error in route.delete /product/:id ${error}`);
 }
 
 module.exports = router;
