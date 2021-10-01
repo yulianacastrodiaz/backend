@@ -20,18 +20,15 @@ module.exports = (sequelize) => {
     },
     payment_method:{
       type: DataTypes.ENUM("STRIPE", "PAYPAL", "MERCADOPAGO"),
-      allowNull: false
     },
     shipping:{
       type: DataTypes.STRING,
     },
     operationCode: {
       type: DataTypes.STRING,
-      allowNull: false
     },
     paymentStatus:{
       type: DataTypes.ENUM("SUCCESS", "FAILURE", "PENDING"),
-      allowNull: false
     } 
   })
 } 

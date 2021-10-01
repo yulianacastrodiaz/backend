@@ -28,7 +28,6 @@ module.exports = (sequelize) => {
     },
     year: {
       type: DataTypes.INTEGER,
-      allowNull: false,
     },
     rating: {
       type: DataTypes.INTEGER,
