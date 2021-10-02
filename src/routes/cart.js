@@ -5,10 +5,20 @@ const { User } = require('../db')
 const { Products_carts } = require('../db')
 const router = Router();
 
-router.put('/', async (req, res) => {
+router.put('/', async(req, res) => {
   try {
     const cartId = req.query.id
     const { userId, products, state, payment_method, shipping } = req.body;
+    if(userId){
+      const cartOfUser = await Cart.findAll({ where: {userId}})
+      if(cartOfUser.length){
+        for (let i = 0; i < cartOfUser.length; i++) {
+          if(cartOfUser[i].state === "in process"){
+            return res.status(400).json({ msg: "No se puede crear un carrito porque el usuario tiene una compra en proceso"})
+          }
+        }
+      }
+    }
     if (cartId) {
       const { action, idProduct } = req.body;
       const cartdb = await Cart.findOne({ where: { id: cartId }, include: Product })
