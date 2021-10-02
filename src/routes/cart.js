@@ -40,25 +40,10 @@ router.put('/', async (req, res) => {
             }
             await cartdb.save();
           }
-          // await cartdb.products.forEach(async (product) => {
-          //   if (product.id === idProduct) {
-          //     if ((product.products_carts.quantity - 1) <= 0) {
-          //       const deleteProduct = await Products_carts.destroy({ where: { cartId, productId: product.id } });
-          //     } else {
-          //       const aux = await Products_carts.findOne({ where: { productId: idProduct, cartId } })
-          //       if (aux) {
-          //         aux.quantity = aux.quantity - 1;
-          //       }
-          //       aux.save()
-          //     }
-          //   }
-          //   cartdb.save();
-          // });
         }
         if (action === "addproduct") {
           const productdb = await Product.findByPk(idProduct)
           if (productdb) {
-            //user.addProject(project, { through: { role: 'manager' }});
             await cartdb.addProduct(productdb, { through: { quantity: 1 } })
             await cartdb.save();
           } else {
