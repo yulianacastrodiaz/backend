@@ -18,6 +18,9 @@ const paypal = require ('./paypal');
 const mepa = require ('./mepa');
 const sendmail = require('./sendmail.js');
 const cartRouter = require('./cart')
+// const deleteuser = require('./deleteuser');
+const resetpassword = require('./resetpassword');
+const roles = require('./roles');
 
 // Configurar los routers
 // Ejemplo: router.use('/auth', authRouter);
@@ -36,5 +39,8 @@ router.use('/paypal', paypal);
 router.use('/mepa', mepa);
 router.use('/mail',sendmail);
 router.use('/cart', cartRouter);
+// router.use('/delete', deleteuser);
+router.use('/password', resetpassword);
+router.use('/promote', roles);
 
 module.exports = router;
