@@ -9,20 +9,13 @@ router.put('/', async(req, res) => {
   try {
     const cartId = req.query.id
     const { userId, products, state, payment_method, shipping } = req.body;
-    if(userId){
-      const cartOfUser = await Cart.findAll({ where: {userId}})
-      if(cartOfUser.length){
-        for (let i = 0; i < cartOfUser.length; i++) {
-          if(cartOfUser[i].state === "in process"){
-            return res.status(400).json({ msg: "No se puede crear un carrito porque el usuario tiene una compra en proceso"})
-          }
-        }
-      }
-    }
     if (cartId) {
       const { action, idProduct } = req.body;
       const cartdb = await Cart.findOne({ where: { id: cartId }, include: Product })
       if (cartdb) {
+        if(action === "finished"){
+
+        }
         if (action === "add") {
           for (let i = 0; i < cartdb.products.length; i++) {
             if (cartdb.products[i].id === idProduct) {
@@ -77,6 +70,14 @@ router.put('/', async(req, res) => {
     } else if (!products) {
       return res.status(400).json({ msg: "Son necesarios los productos" })
     } else if (state === "in process" || state === "cancelled" || state === "finished" || state === null || state === undefined) {
+      const cartOfUser = await Cart.findAll({ where: {userId}})
+      if(cartOfUser.length){
+        for (let i = 0; i < cartOfUser.length; i++) {
+          if(cartOfUser[i].state === "in process"){
+            return res.status(400).json({ msg: "No se puede crear un carrito porque el usuario tiene una compra en proceso"})
+          }
+        }
+      }
       if (state === null || state === undefined) state === "in process";
       if (payment_method) payment_method = payment_method.toUpperCase()
       const newCart = await Cart.create({
@@ -267,11 +268,11 @@ router.get('/', async (req, res) => {
       include: [
         {
           model: User,
-          attributes: ['name', 'lastname']
+          attributes: ['name', 'lastname', 'mail']
         },
         {
           model: Product,
-          attributes: ['name', 'price'],
+          attributes: ['name', 'price', 'picture', 'id'],
           through: {
             attributes: ['quantity']
           }
@@ -282,13 +283,16 @@ router.get('/', async (req, res) => {
     const date = new Date(result[0].createdAt)
     const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
     order.uname = result[0].user.name
+    order.umail = result[0].user.mail
     order.ulastname = result[0].user.lastname
     order.state = result[0].state
     order.payment_method = result[0].payment_method
     order.created = dia
     order.products = result[0].products.map(p => {
       return {
+        id: p.id,
         name: p.name,
+        picture: p.picture,
         price: p.price,
         quantity: p.products_carts.quantity
       }
