@@ -5,7 +5,7 @@ const { User } = require('../db')
 const { Products_carts } = require('../db')
 const router = Router();
 
-router.put('/', async(req, res) => {
+router.put('/', async (req, res) => {
   try {
     const cartId = req.query.id
     const { userId, products, state, payment_method, shipping } = req.body;
@@ -13,7 +13,7 @@ router.put('/', async(req, res) => {
       const { action, idProduct } = req.body;
       const cartdb = await Cart.findOne({ where: { id: cartId }, include: Product })
       if (cartdb) {
-        if(action === "finished"){
+        if (action === "finished") {
 
         }
         if (action === "add") {
@@ -70,11 +70,11 @@ router.put('/', async(req, res) => {
     } else if (!products) {
       return res.status(400).json({ msg: "Son necesarios los productos" })
     } else if (state === "in process" || state === "cancelled" || state === "finished" || state === null || state === undefined) {
-      const cartOfUser = await Cart.findAll({ where: {userId}})
-      if(cartOfUser.length){
+      const cartOfUser = await Cart.findAll({ where: { userId } })
+      if (cartOfUser.length) {
         for (let i = 0; i < cartOfUser.length; i++) {
-          if(cartOfUser[i].state === "in process"){
-            return res.status(400).json({ msg: "No se puede crear un carrito porque el usuario tiene una compra en proceso"})
+          if (cartOfUser[i].state === "in process") {
+            return res.status(400).json({ msg: "No se puede crear un carrito porque el usuario tiene una compra en proceso" })
           }
         }
       }
@@ -160,49 +160,34 @@ router.get('/:id', async (req, res) => {
     })
     res.status(200).json(order)
   } catch (error) {
-    res.send('Error: ', error)
+    res.status(404).json('Error: ', error)
   }
 });
 
 //Muestra todas las ordenes para el administrador
-router.get('/admin', async (req, res) => {
+router.get('/admin/orders', async (req, res) => {
   try {
-    const result = await Cart.findAll({
-      attributes: ['state', 'payment_method', 'createdAt'],
+    const allOrders = await Cart.findAll({
       include: [
         {
           model: User,
-          attributes: ['name', 'lastname']
-        },
-        {
+          attributes: ['name', 'lastname', 'username', 'mail', 'id']
+        }, {
           model: Product,
-          attributes: ['name', 'price'],
+          attributes: ['name', 'price', 'picture', 'id'],
           through: {
             attributes: ['quantity']
           }
-        }]
-    });
-    if (!result.length) return res.status(400).send('No orders found')
-    return res.json(result)
-    const order = {}
-    const date = new Date(result[0].createdAt)
-    const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
-    order.uname = result[0].user.name
-    order.ulastname = result[0].user.lastname
-    order.state = result[0].state
-    order.payment_method = result[0].payment_method
-    order.created = dia
-    order.products = result[0].products.map(p => {
-      return {
-        name: p.name,
-        price: p.price,
-        quantity: p.products_carts.quantity
-      }
+        }
+      ]
     })
-
-    res.status(200).json(order)
+    if (allOrders.length) {
+      res.json(allOrders)
+    } else {
+      return res.status(400).json({ msg: 'No orders found' });
+    }
   } catch (error) {
-    res.send('Error: ', error)
+    res.status(404).json('Error: ', error)
   }
 });
 
