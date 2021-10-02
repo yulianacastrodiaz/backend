@@ -1,7 +1,8 @@
 const { Router } = require('express');
 const { User } = require('../db')
 const { Product } = require('../db')
-const { Cart } = require('../db')
+const { Cart } = require('../db');
+const { id } = require('./filters');
 
 const router = Router();
 
@@ -14,14 +15,13 @@ router.get('/admin', async(req, res) => {
            { model: User,
              attributes: ['name','lastname']},
            { model: Product,
-             attributes: ['name','price'],
+             attributes: ['id','name','price'],
              through: {
                  attributes: ['quantity']
              }
            }] 
       }); 
       if (!result.length) return res.status(400).send('No orders found')
-      return res.json(result)
       const order= {}
       const date = new Date(result[0].createdAt)
       const dia = date.getDate() + '/' + (date.getMonth()+1)  + '/' + date.getFullYear()
@@ -32,6 +32,7 @@ router.get('/admin', async(req, res) => {
       order.created = dia
       order.products = result[0].products.map( p => {
                 return {
+                  productid : p.id,  
                   name : p.name,
                   price : p.price,
                   quantity : p.products_carts.quantity
@@ -55,7 +56,7 @@ router.get('/:id', async(req, res) => {
           { model: User,
             attributes: ['name','lastname']},
           { model: Product,
-            attributes: ['name','price'],
+            attributes: ['id','name','price'],
             through: {
                 attributes: ['quantity']
             }
@@ -73,6 +74,7 @@ router.get('/:id', async(req, res) => {
      order.created = dia
      order.products = result[0].products.map( p => {
                return {
+                 productid : p.id,
                  name : p.name,
                  price : p.price,
                  quantity : p.products_carts.quantity
@@ -85,7 +87,7 @@ router.get('/:id', async(req, res) => {
 });
 
 
-// Muestra una ordenes para un usuario
+// Muestra ordenes para un usuario
 router.get('/', async(req, res) => {
     const { userid, state } = req.query
     let condition = {}
@@ -104,7 +106,7 @@ router.get('/', async(req, res) => {
            { model: User,
              attributes: ['name','lastname']},
            { model: Product,
-             attributes: ['name','price'],
+             attributes: ['id','name','price'],
              through: {
                  attributes: ['quantity']
              }
@@ -121,6 +123,7 @@ router.get('/', async(req, res) => {
       order.created = dia
       order.products = result[0].products.map( p => {
                 return {
+                  productid : p.id,  
                   name : p.name,
                   price : p.price,
                   quantity : p.products_carts.quantity
