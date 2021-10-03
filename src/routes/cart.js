@@ -116,7 +116,7 @@ router.put('/', async (req, res) => {
         if (!userdb) return res.status(404).json({ msg: "El usuario no existe" })
         userdb.addCart(newCart)
       }
-      if (products.length >= 1) {
+      if ( products && products.length >= 1 ) {
         const allProducts = await products.map(async (p) => {
           const productdb = await Product.findOne({ where: { id: p.productId } })
           return {
