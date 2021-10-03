@@ -4,7 +4,10 @@ const router = Router();
 require('dotenv').config();
 const mercadopago = require('mercadopago');
 const { MERPA_PUBLIC_KEY, MERPA_ACCS_TOKEN } = process.env
-const { Cart } = require('../models/Cart');
+const { Cart } = require('../db')
+const { Product } = require('../db')
+const { Products_carts } = require('../db')
+
 
 
 const firstUpperCase = function (mayus) { return mayus.replace(/\b\w/g, l => l.toUpperCase()) }
@@ -17,30 +20,47 @@ mercadopago.configure({
 
 //middleware para setear el producto y buscar el carrito
 router.use('/get-payment', async (req, res, next) => {
+  try {
+    let change = preference.items[0]
 
-  let change = preference.items[0]
+    let { price, orderid } = req.body
 
-  let { title, unit_price, quantity, orderid } = req.body
+    preference.client = orderid
 
-  preference.client = orderid
-  unit_price = Number(unit_price);
-  quantity = Number(quantity);
-  title = firstUpperCase(title.toLowerCase())
+    price = Number(price);
+    change.unit_price = price;
 
-  change.title = title;
-  change.unit_price = unit_price;
-  change.quantity = quantity;
+    let clientFound = await Cart.findAll({
+      where: { id: orderid },
+    })
 
-  /* let clientFound = await Cart.findOne({
-    where: { orderid: user },
-  }) */
+    if (!preference.client) {
+      res.status(404).json(`No fue posible encontrar el carrito del cliente`)
+    }
 
-  // if(clientFound > 0){
-  console.log(await preference)
-  if (preference.client > 0) {
+    let CartProductFound = await Products_carts.findAll({
+      where: { cartId: orderid },
+      attributes: ['quantity', 'productId']
+    })
+    
+    if (await CartProductFound.length > 1) { change.title = "Productos"; }
+    if (await CartProductFound.length === 1) {
+      let prodId = await CartProductFound[0].dataValues.productId
+
+      let prodData = await Product.findOne({
+        where: { id: prodId },
+        attributes: ['name', 'picture']
+      })
+
+      change.title = prodData.dataValues.name
+      change.picture_url = prodData.dataValues.picture
+    }
     return next()
+
+  } catch (error) {
+    console.log(error)
+    res.status(404).json("Ocurrio un problema inesperado, revise el id del carrito proporcionado")
   }
-  res.status(404).json(`No se encontro la orden ${preference.client} en el carrito del cliente`)
 
 });
 
@@ -48,9 +68,10 @@ router.use('/get-payment', async (req, res, next) => {
 let preference = {
   items: [
     {
-      title: "producto",
+      title: "Elementos",
+      picture_url: "https://i.ibb.co/c83qw1s/B7ua5pw-Ig-AAsvw-M.png",
       unit_price: 56,
-      quantity: 2,
+      quantity: 1,
     }
   ],
   back_urls: {
@@ -59,7 +80,7 @@ let preference = {
     "pending": "http://localhost:3001/mepa/feedback",
   },
   auto_return: 'approved',
-  client: 0,
+  client: "",
 };
 
 
@@ -68,8 +89,9 @@ router.post('/get-payment', async (req, res) => {
   preference; //producto listo para cobrar el pago
   mercadopago.preferences.create(preference)
     .then(function (response) {
+      // console.log( response)
       // res.json({id :response.body.id})
-      let urlPay = response.response.init_point
+      let urlPay = response.response.sandbox_init_point
 
       res.json(urlPay)
     }).catch(function (error) {
@@ -81,13 +103,11 @@ router.post('/get-payment', async (req, res) => {
 
 router.get('/feedback', async (req, res) => {
   try {
-    let { payment_id, status, merchant_order_id } = req.query
-    let client = preference.client
-
-    console.log("Cliente numero", client, "compra:", status);
+    preference;
+    let { payment_id, status, merchant_order_id } = req.query;
 
     (status === "approved") ? status = "SUCCESS"
-      : (status === "in_process") ? status = "PENDING"
+      : (status === "in_process") ? status = "SUCCESS"
         : status = "FAILURE";
 
     const newTicket = {
@@ -96,22 +116,25 @@ router.get('/feedback', async (req, res) => {
       paymentStatus: status
     }
 
-    console.log(newTicket)
-
-    // await Cart.update(newTicket,{
-    //   where: { orderid: preference.client }
-    // })
+    await Cart.update({
+      payment_method : "MERCADOPAGO",
+      paymentStatus : status,
+      operationCode: newTicket.operationCode,
+    },{
+      where: { id: preference.client }
+    })
+    
 
     //la compra se cancelo
     if (status === "FAILURE") {
       return res.json({ msg: `Ocurrio un error al intentar realizar el pago` })
     }
     res.json({
-      msg: `la compra se realizo de manera satisfactoria`
+      msg: `la compra se realizo de manera satisfactoria, ya puedes cerrar esta ventana`
     })
 
   } catch (error) {
-    console.log(error)
+    console.log("problema:",error)
     res.status(404).json("Ocurrio un problema inesperado")
   }
 });
