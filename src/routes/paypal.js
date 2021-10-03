@@ -3,8 +3,9 @@ const router = Router();
 const bodyParser = require('body-parser');
 // router.use(bodyParser.json())
 const request = require('request');
-
 require('dotenv').config();
+const { Cart } = require('../models/Cart');
+
 
 
 //credenciales de variables de entorno
@@ -17,9 +18,9 @@ const auth = { user: PAYPAL_CLIENT, pass: PAYPAL_SECRET }
 router.use('/get-payment', (req, res, next) => {
 
     let change = body.purchase_units[0].amount
-    let { currency_code, value } = req.body
+    let { currency_code, value, orderid } = req.body
     currency_code = currency_code.toUpperCase()
-    
+
     //validaciones para "currency_code"
     if (typeof currency_code !== "string") { return res.status(404).json(`El campo currency_code solo admite datos del tipo string`) }
 
@@ -41,6 +42,13 @@ router.use('/get-payment', (req, res, next) => {
         /^[0-9]*(\.?)[0-9]+$/.test(value) ? change.value = value
             : res.status(404).json(`Revisar el campo del precio (${value}) que se esta intentando enviar, solo se admiten string numericos separados por punto de ser necesarios`)
     }
+    //validaciones para orderid
+    if (orderid === undefined) {
+        return res.status(404).json(`No se especifico un orderid del cliente`)
+    }
+    orderid = Number(orderid)
+    body.client = orderid
+
     next()
 })
 
@@ -59,7 +67,8 @@ let body = {
         user_action: 'PAY_NOW', //con esto paypal mostrara el montó que se esta intentando cobrar
         return_url: 'http://localhost:3001/paypal/validated-payment',
         cancel_url: 'http://localhost:3001/paypal/canceled-payment', //deberia rutear al frontend
-    }
+    },
+    client: 0
 }
 
 
@@ -69,20 +78,39 @@ const createPayment = (req, res) => {
         auth,
         body,
         json: true
-    }, (err, response) => {
-        res.json({ data: response.body })
+    }, async (err, response) => {
+        let web = await response.body.links[1].href
+        //res.json({ data: response.body })
+        res.json(web)
     })
 }
 
-const executePayment = (req, res) => {
+
+const executePayment = async (req, res) => {
     const token = req.query.token
-    console.log("el executor saco plata")
+    console.log("el executor saco dinero")
     request.post(`${PAYPAL_API}/v2/checkout/orders/${token}/capture`, {
         auth,
         body: {},
         json: true
     }, (err, response) => {
-        res.json({ data: response.body }) // como devuelvo sin que vea el cliente se devuelve la informacion completa del pago
+
+        let ticket = response.body.purchase_units[0].payments.captures[0]
+        let status = "PENDING"
+        if (ticket.status === "COMPLETED") { status = "SUCCESS" }
+
+        const newTicket = {
+            payment_method: "PAYPAL",
+            operationCode: ticket.id,
+            paymentStatus: status,
+        }
+
+        // await Cart.update(newTicket,{
+        //    where: { orderid: preference.client }
+        //  })
+
+        console.log(newTicket)
+        res.json(`El proceso de pago se efectuo de manera satisfactoria`)
     })
 }
 
@@ -93,9 +121,21 @@ router.post('/get-payment', createPayment)
 router.get('/validated-payment', executePayment)
 
 //ruta provisoria, deberia ser del front
-router.get('/canceled-payment', (req, res) => {
+router.get('/canceled-payment', async (req, res) => {
     const token = req.query.token
-    let body = {msg:`El pago ${token} no pudo llevarse a cabo.
+
+    const newTicket = {
+        payment_method: "PAYPAL",
+        operationCode: token,
+        paymentStatus: "FAILURE",
+    }
+
+    // await Cart.update(newTicket,{
+    //     where: { orderid: preference.client }
+    //   })
+
+    let body = {
+        msg: `El pago ${token} no pudo llevarse a cabo.
     Por uno de los siguientes motivos:
     *El cliente cancelo la compra
     *Las credenciales no son las correctas, reviselas
