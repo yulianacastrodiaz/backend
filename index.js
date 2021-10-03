@@ -8,6 +8,7 @@ const preloadProducts = require('./src/preload/preloadProducts')
 const presetProducts = require('./src/preset/presetProducts')
 const preloadReviews = require('./src/preload/preloadReviews')
 const presetReviews = require('./src/preset/presetReviews')
+const preloadAdmin = require('./src/preload/preloadAdmin')
 
 // Syncing all the models at once.
 const PORT = process.env.PORT || 3001
@@ -27,6 +28,8 @@ try {
         console.log('precarga de productos: done :)');
         const reviews = await preloadReviews();
         console.log('precarga de reviews: done :)');
+        const admin = await preloadAdmin();
+        console.log('precarga de admin: done :)');
         const setCategoriesToSubCategories = await presetCategoryToSubCategory();
         const setProducts = await presetProducts();
         console.log('preseteo de productos: done :)');
