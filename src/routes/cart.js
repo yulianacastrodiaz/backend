@@ -16,7 +16,7 @@ router.put('/', async (req, res) => {
         if (action === "finished") {
           const { payment_method } = req.body
           if(payment_method){
-            cartdb.payment_method = payment_method
+            cartdb.payment_method = payment_method.toUpperCase(),
             cartdb.state = "finished" 
             await cartdb.save()
           } else {
@@ -116,7 +116,7 @@ router.put('/', async (req, res) => {
         if (!userdb) return res.status(404).json({ msg: "El usuario no existe" })
         userdb.addCart(newCart)
       }
-      if ( products && products.length >= 1 ) {
+      if ( products !== undefined && products.length >= 1 ) {
         const allProducts = await products.map(async (p) => {
           const productdb = await Product.findOne({ where: { id: p.productId } })
           return {
