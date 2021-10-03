@@ -7,10 +7,10 @@ async function preloadAdmin(){
     const password = "123456789"
     let passwordHashed = bcrypt.hashSync(password, parseInt(authConfig.rounds))
     const newadmin = await User.create({
-      mail: "yulianacastrodiaz7@gmail.com",
-      username: "Yuliana28",
-      name: "Yuliana",
-      lastname: "Castro",
+      mail: "admin@admin.com",
+      username: "Admin28",
+      name: "Admin",
+      lastname: "Pollito",
       password: passwordHashed,
       isAdmin: true,
     }) 
