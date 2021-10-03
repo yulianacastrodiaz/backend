@@ -195,12 +195,29 @@ router.get('/admin/orders', async (req, res) => {
           attributes: ['name', 'lastname', 'username', 'mail', 'id']
         }, {
           model: Product,
-          attributes: ['name', 'price', 'picture', 'id'],
+          attributes: ['id','name', 'price','picture'],
           through: {
             attributes: ['quantity']
           }
-        }
-      ]
+        }]
+    });
+    if (!result.length) return res.status(400).send('No orders found')
+    const order = {}
+    const date = new Date(result[0].createdAt)
+    const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
+    order.uname = result[0].user.name
+    order.ulastname = result[0].user.lastname
+    order.state = result[0].state
+    order.payment_method = result[0].payment_method
+    order.created = dia
+    order.products = result[0].products.map(p => {
+      return {
+        productid : p.id,
+        name: p.name,
+        price: p.price,
+        image: p.picture,
+        quantity: p.products_carts.quantity
+      }
     })
     if (allOrders.length) {
       res.json(allOrders)
@@ -226,7 +243,7 @@ router.get('/:id', async (req, res) => {
         },
         {
           model: Product,
-          attributes: ['name', 'price'],
+          attributes: ['id','name', 'price','picture'],
           through: {
             attributes: ['quantity']
           }
@@ -244,8 +261,10 @@ router.get('/:id', async (req, res) => {
     order.created = dia
     order.products = result[0].products.map(p => {
       return {
+        productid : p.id,
         name: p.name,
         price: p.price,
+        image : p.picture,
         quantity: p.products_carts.quantity
       }
     })
@@ -254,7 +273,6 @@ router.get('/:id', async (req, res) => {
     res.send('Error: ', error)
   }
 });
-
 
 // Muestra una ordenes para un usuario
 router.get('/', async (req, res) => {
@@ -298,7 +316,7 @@ router.get('/', async (req, res) => {
       return {
         id: p.id,
         name: p.name,
-        picture: p.picture,
+        image: p.picture,
         price: p.price,
         quantity: p.products_carts.quantity
       }
