@@ -5,7 +5,7 @@ const { User } = require('../db')
 const { Products_carts } = require('../db')
 const router = Router();
 
-router.put('/', async(req, res) => {
+router.put('/', async (req, res) => {
   try {
     const cartId = req.query.id
     const { userId, products, state, payment_method, shipping } = req.body;
@@ -13,7 +13,7 @@ router.put('/', async(req, res) => {
       const { action, idProduct } = req.body;
       const cartdb = await Cart.findOne({ where: { id: cartId }, include: Product })
       if (cartdb) {
-        if(action === "finished"){
+        if (action === "finished") {
 
         }
         if (action === "add") {
@@ -45,10 +45,26 @@ router.put('/', async(req, res) => {
           }
         }
         if (action === "addproduct") {
-          const productdb = await Product.findByPk(idProduct)
+          const productdb = await Product.findOne({ where: { id: idProduct }, include: Cart })
           if (productdb) {
-            await cartdb.addProduct(productdb, { through: { quantity: 1 } })
-            await cartdb.save();
+            if (productdb.carts.length) {
+              for (let i = 0; i < productdb.carts.length; i++) {
+                if (productdb.carts[i].dataValues.id === cartId) {
+                  if (productdb.carts[i].dataValues.products_carts.quantity >= 1) {
+                    const aux = await Products_carts.findOne({ where: { productId: idProduct, cartId } })
+                    if (aux) {
+                      aux.quantity = aux.quantity + 1;
+                    }
+                    await aux.save()
+                    await cartdb.save();
+                  }
+                }
+              }
+            } else {
+              await cartdb.addProduct(productdb, { through: { quantity: 1 } })
+              await cartdb.save();
+            }
+
           } else {
             return res.status(404).json({ msg: "El producto que intenta agregar no existe" })
           }
@@ -70,16 +86,17 @@ router.put('/', async(req, res) => {
     } else if (!products) {
       return res.status(400).json({ msg: "Son necesarios los productos" })
     } else if (state === "in process" || state === "cancelled" || state === "finished" || state === null || state === undefined) {
-      const cartOfUser = await Cart.findAll({ where: {userId}})
-      if(cartOfUser.length){
+      const cartOfUser = await Cart.findAll({ where: { userId } })
+      if (cartOfUser.length) {
         for (let i = 0; i < cartOfUser.length; i++) {
-          if(cartOfUser[i].state === "in process"){
-            return res.status(400).json({ msg: "No se puede crear un carrito porque el usuario tiene una compra en proceso"})
+          if (cartOfUser[i].state === "in process") {
+            return res.status(400).json({ msg: "No se puede crear un carrito porque el usuario tiene una compra en proceso" })
           }
         }
       }
       if (state === null || state === undefined) state === "in process";
-      if (payment_method) payment_method = payment_method.toUpperCase()
+      if (payment_method) payment_method = payment_method.toUpperCase();
+
       const newCart = await Cart.create({
         state,
         payment_method,
@@ -90,34 +107,38 @@ router.put('/', async(req, res) => {
         if (!userdb) return res.status(404).json({ msg: "El usuario no existe" })
         userdb.addCart(newCart)
       }
+      if (products.length >= 1) {
+        const allProducts = await products.map(async (p) => {
+          const productdb = await Product.findOne({ where: { id: p.productId } })
+          return {
+            productdb,
+            quantity: p.quantity
+          };
+        })
 
-      const allProducts = await products.map(async (p) => {
-        const productdb = await Product.findOne({ where: { id: p.productId } })
-        return {
-          productdb,
-          quantity: p.quantity
-        };
-      })
-
-      Promise.all(allProducts)
-        .then((data) => {
-          const aux = data.map(async (response) => {
-            return await newCart.setProducts([response.productdb], { through: { quantity: response.quantity } })
+        Promise.all(allProducts)
+          .then((data) => {
+            const aux = data.map(async (response) => {
+              return await newCart.setProducts([response.productdb], { through: { quantity: response.quantity } })
+            })
+            return Promise.all(aux)
           })
-          return Promise.all(aux)
-        })
-        .then(() => {
-          const cartdb = Cart.findOne({ where: { id: newCart.id }, include: Product });
-          return cartdb;
-        })
-        .then((cartdb) => {
-          return res.json({ cartdb, msg: `Su orden fue tomada con éxito. Este es el id ${newCart.id}` })
-        })
-        .catch((error) => {
-          console.log(error)
-          res.status(404).json(error)
-        })
-
+          .then(() => {
+            const cartdb = Cart.findOne({ where: { id: newCart.id }, include: Product });
+            return cartdb;
+          })
+          .then((cartdb) => {
+            return res.json({ cartdb, msg: `Su orden fue tomada con éxito. Este es el id ${newCart.id}` })
+          })
+          .catch((error) => {
+            console.log(error)
+            res.status(404).json(error)
+          })
+      } else {
+        const cartdb = await Cart.findOne({ where: { id: newCart.id }, include: Product });
+        newCart.save()
+        return res.json({ newCart: cartdb, msg: `Su orden fue tomada con éxito. Este es el id ${cartdb.id}` })
+      }
     } else {
       return res.status(400).json({ msg: "El estado debe ser uno válido: 'in process', 'cancelled' o 'finished' " })
     }
@@ -128,17 +149,51 @@ router.put('/', async(req, res) => {
 })
 
 
-//Muestra todas las ordenes para el administrador
-router.get('/admin', async (req, res) => {
+router.get('/:id', async (req, res) => {
+  const { id } = req.params
+  console.log('Order: ', id)
   try {
     const result = await Cart.findAll({
-      attributes: ['state', 'payment_method', 'createdAt'],
+      where: { orderid: id },
+      attributes: ['state', 'payment_method'],
       include: [
         {
           model: User,
           attributes: ['name', 'lastname']
         },
         {
+          model: Product,
+          attributes: ['name', 'price'],
+          through: {
+            attributes: ['quantity']
+          }
+        }]
+    });
+    const order = {}
+    order.uname = result[0].user.name
+    order.ulastname = result[0].user.lastname
+    order.products = result[0].products.map(p => {
+      return {
+        name: p.name,
+        price: p.price,
+        quantity: p.products_carts.quantity
+      }
+    })
+    res.status(200).json(order)
+  } catch (error) {
+    res.status(404).json('Error: ', error)
+  }
+});
+
+//Muestra todas las ordenes para el administrador
+router.get('/admin/orders', async (req, res) => {
+  try {
+    const allOrders = await Cart.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ['name', 'lastname', 'username', 'mail', 'id']
+        }, {
           model: Product,
           attributes: ['id','name', 'price','picture'],
           through: {
@@ -164,10 +219,13 @@ router.get('/admin', async (req, res) => {
         quantity: p.products_carts.quantity
       }
     })
-
-    res.status(200).json(order)
+    if (allOrders.length) {
+      res.json(allOrders)
+    } else {
+      return res.status(400).json({ msg: 'No orders found' });
+    }
   } catch (error) {
-    res.send('Error: ', error)
+    res.status(404).json('Error: ', error)
   }
 });
 
