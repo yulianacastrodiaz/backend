@@ -45,10 +45,26 @@ router.put('/', async (req, res) => {
           }
         }
         if (action === "addproduct") {
-          const productdb = await Product.findByPk(idProduct)
+          const productdb = await Product.findOne({ where: { id: idProduct }, include: Cart })
           if (productdb) {
-            await cartdb.addProduct(productdb, { through: { quantity: 1 } })
-            await cartdb.save();
+            if (productdb.carts.length) {
+              for (let i = 0; i < productdb.carts.length; i++) {
+                if (productdb.carts[i].dataValues.id === cartId) {
+                  if (productdb.carts[i].dataValues.products_carts.quantity >= 1) {
+                    const aux = await Products_carts.findOne({ where: { productId: idProduct, cartId } })
+                    if (aux) {
+                      aux.quantity = aux.quantity + 1;
+                    }
+                    await aux.save()
+                    await cartdb.save();
+                  }
+                }
+              }
+            } else {
+              await cartdb.addProduct(productdb, { through: { quantity: 1 } })
+              await cartdb.save();
+            }
+
           } else {
             return res.status(404).json({ msg: "El producto que intenta agregar no existe" })
           }
@@ -79,7 +95,8 @@ router.put('/', async (req, res) => {
         }
       }
       if (state === null || state === undefined) state === "in process";
-      if (payment_method) payment_method = payment_method.toUpperCase()
+      if (payment_method) payment_method = payment_method.toUpperCase();
+
       const newCart = await Cart.create({
         state,
         payment_method,
@@ -90,34 +107,38 @@ router.put('/', async (req, res) => {
         if (!userdb) return res.status(404).json({ msg: "El usuario no existe" })
         userdb.addCart(newCart)
       }
+      if (products.length >= 1) {
+        const allProducts = await products.map(async (p) => {
+          const productdb = await Product.findOne({ where: { id: p.productId } })
+          return {
+            productdb,
+            quantity: p.quantity
+          };
+        })
 
-      const allProducts = await products.map(async (p) => {
-        const productdb = await Product.findOne({ where: { id: p.productId } })
-        return {
-          productdb,
-          quantity: p.quantity
-        };
-      })
-
-      Promise.all(allProducts)
-        .then((data) => {
-          const aux = data.map(async (response) => {
-            return await newCart.setProducts([response.productdb], { through: { quantity: response.quantity } })
+        Promise.all(allProducts)
+          .then((data) => {
+            const aux = data.map(async (response) => {
+              return await newCart.setProducts([response.productdb], { through: { quantity: response.quantity } })
+            })
+            return Promise.all(aux)
           })
-          return Promise.all(aux)
-        })
-        .then(() => {
-          const cartdb = Cart.findOne({ where: { id: newCart.id }, include: Product });
-          return cartdb;
-        })
-        .then((cartdb) => {
-          return res.json({ cartdb, msg: `Su orden fue tomada con éxito. Este es el id ${newCart.id}` })
-        })
-        .catch((error) => {
-          console.log(error)
-          res.status(404).json(error)
-        })
-
+          .then(() => {
+            const cartdb = Cart.findOne({ where: { id: newCart.id }, include: Product });
+            return cartdb;
+          })
+          .then((cartdb) => {
+            return res.json({ cartdb, msg: `Su orden fue tomada con éxito. Este es el id ${newCart.id}` })
+          })
+          .catch((error) => {
+            console.log(error)
+            res.status(404).json(error)
+          })
+      } else {
+        const cartdb = await Cart.findOne({ where: { id: newCart.id }, include: Product });
+        newCart.save()
+        return res.json({ newCart: cartdb, msg: `Su orden fue tomada con éxito. Este es el id ${cartdb.id}` })
+      }
     } else {
       return res.status(400).json({ msg: "El estado debe ser uno válido: 'in process', 'cancelled' o 'finished' " })
     }
