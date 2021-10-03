@@ -128,42 +128,6 @@ router.put('/', async(req, res) => {
 })
 
 
-router.get('/:id', async (req, res) => {
-  const { id } = req.params
-  console.log('Order: ', id)
-  try {
-    const result = await Cart.findAll({
-      where: { orderid: id },
-      attributes: ['state', 'payment_method'],
-      include: [
-        {
-          model: User,
-          attributes: ['name', 'lastname']
-        },
-        {
-          model: Product,
-          attributes: ['name', 'price'],
-          through: {
-            attributes: ['quantity']
-          }
-        }]
-    });
-    const order = {}
-    order.uname = result[0].user.name
-    order.ulastname = result[0].user.lastname
-    order.products = result[0].products.map(p => {
-      return {
-        name: p.name,
-        price: p.price,
-        quantity: p.products_carts.quantity
-      }
-    })
-    res.status(200).json(order)
-  } catch (error) {
-    res.send('Error: ', error)
-  }
-});
-
 //Muestra todas las ordenes para el administrador
 router.get('/admin', async (req, res) => {
   try {
@@ -176,14 +140,13 @@ router.get('/admin', async (req, res) => {
         },
         {
           model: Product,
-          attributes: ['name', 'price'],
+          attributes: ['id','name', 'price','picture'],
           through: {
             attributes: ['quantity']
           }
         }]
     });
     if (!result.length) return res.status(400).send('No orders found')
-    return res.json(result)
     const order = {}
     const date = new Date(result[0].createdAt)
     const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
@@ -194,8 +157,10 @@ router.get('/admin', async (req, res) => {
     order.created = dia
     order.products = result[0].products.map(p => {
       return {
+        productid : p.id,
         name: p.name,
         price: p.price,
+        image: p.picture,
         quantity: p.products_carts.quantity
       }
     })
@@ -220,7 +185,7 @@ router.get('/:id', async (req, res) => {
         },
         {
           model: Product,
-          attributes: ['name', 'price'],
+          attributes: ['id','name', 'price','picture'],
           through: {
             attributes: ['quantity']
           }
@@ -238,8 +203,10 @@ router.get('/:id', async (req, res) => {
     order.created = dia
     order.products = result[0].products.map(p => {
       return {
+        productid : p.id,
         name: p.name,
         price: p.price,
+        image : p.picture,
         quantity: p.products_carts.quantity
       }
     })
@@ -248,7 +215,6 @@ router.get('/:id', async (req, res) => {
     res.send('Error: ', error)
   }
 });
-
 
 // Muestra una ordenes para un usuario
 router.get('/', async (req, res) => {
@@ -292,7 +258,7 @@ router.get('/', async (req, res) => {
       return {
         id: p.id,
         name: p.name,
-        picture: p.picture,
+        image: p.picture,
         price: p.price,
         quantity: p.products_carts.quantity
       }
