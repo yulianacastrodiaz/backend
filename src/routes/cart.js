@@ -94,8 +94,6 @@ router.put('/', async (req, res) => {
     }
     if (!userId) {
       return res.status(400).json({ msg: "Se necesita el id del usuario" })
-    } else if (!products) {
-      return res.status(400).json({ msg: "Son necesarios los productos" })
     } else if (state === "in process" || state === "cancelled" || state === "finished" || state === null || state === undefined) {
       const cartOfUser = await Cart.findAll({ where: { userId } })
       if (cartOfUser.length) {
