@@ -14,7 +14,18 @@ router.put('/', async (req, res) => {
       const cartdb = await Cart.findOne({ where: { id: cartId }, include: Product })
       if (cartdb) {
         if (action === "finished") {
-
+          const { payment_method } = req.body
+          if(payment_method){
+            cartdb.payment_method = payment_method
+            cartdb.state = "finished" 
+            await cartdb.save()
+          } else {
+            return res.status(400).json({ msg: "Falta el método de pago para finalizar la compra"})
+          }
+        }
+        if (action === "cancelled") {
+          cartdb.state = "cancelled"
+          await cartdb.save()
         }
         if (action === "add") {
           for (let i = 0; i < cartdb.products.length; i++) {
