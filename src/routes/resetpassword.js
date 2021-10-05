@@ -2,7 +2,6 @@ const { Router } = require('express');
 const router = Router();
 const { User } = require('../db');
 const bcrypt = require('bcrypt');
-// const passport = require('passport');
 require('../passport');
 
 router.put('/resetPassword', async (req, res) => {

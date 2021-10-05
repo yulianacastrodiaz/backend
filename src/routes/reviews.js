@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { Review } = require('../db');
-const { Product } = require('../db');
+const { Product, User } = require('../db');
 
 const router = Router();
 
@@ -45,16 +45,27 @@ try {
 
 try {
   router.post('/', async(req, res) => {
-    const { comment, stars, product } = req.body;
+    const { comment, stars, product, userId } = req.body;
     if(!product) return res.status(404).json({ msg:"Debes mandar un id del producto" })
     const p = await Product.findOne({where: { id: product } })
+
+    if(!userId){
+      return res.status(404).json({ msg:"Debes mandar un id de usuario" })
+    }
 
     if(comment){
       const newReview = await Review.create({
         comment,
         stars
       })
+      const user = await User.findByPk(userId)
+      if(user){
+        await user.addReview(newReview)
+      } else {
+        return res.status(404).json({ msg:"Este usuario no existe" })
+      }
       await p.addReview(newReview)
+      
       res.json({ msg: "Tu review ha sido publicada"})
     } else {
       return res.status(404).json({ msg: "Debes pasar un comentario"})
