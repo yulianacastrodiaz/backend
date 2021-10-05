@@ -127,7 +127,6 @@ router.put('/', async(req, res) => {
   }
 })
 
-
 //Muestra todas las ordenes para el administrador
 router.get('/admin', async (req, res) => {
   try {
@@ -146,26 +145,10 @@ router.get('/admin', async (req, res) => {
           }
         }]
     });
-    if (!result.length) return res.status(400).send('No orders found')
-    const order = {}
-    const date = new Date(result[0].createdAt)
-    const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
-    order.uname = result[0].user.name
-    order.ulastname = result[0].user.lastname
-    order.state = result[0].state
-    order.payment_method = result[0].payment_method
-    order.created = dia
-    order.products = result[0].products.map(p => {
-      return {
-        productid : p.id,
-        name: p.name,
-        price: p.price,
-        image: p.picture,
-        quantity: p.products_carts.quantity
-      }
-    })
-
-    res.status(200).json(order)
+    if (!result.length) {
+      return res.status(400).send('No orders found')
+    } 
+    res.json(result)
   } catch (error) {
     res.send('Error: ', error)
   }
@@ -244,27 +227,10 @@ router.get('/', async (req, res) => {
           }
         }]
     });
-    if (!result.length) return res.status(400).send('No orders found')
-    const order = {}
-    const date = new Date(result[0].createdAt)
-    const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
-    order.uname = result[0].user.name
-    order.umail = result[0].user.mail
-    order.ulastname = result[0].user.lastname
-    order.state = result[0].state
-    order.payment_method = result[0].payment_method
-    order.created = dia
-    order.products = result[0].products.map(p => {
-      return {
-        id: p.id,
-        name: p.name,
-        image: p.picture,
-        price: p.price,
-        quantity: p.products_carts.quantity
-      }
-    })
-
-    res.status(200).json(order)
+    if (!result.length) {
+      return res.status(400).send('No orders found')
+    } 
+    res.json(result)
   } catch (error) {
     res.send('Error: ', error)
   }
