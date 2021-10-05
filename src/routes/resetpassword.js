@@ -1,21 +1,23 @@
 const { Router } = require('express');
 const router = Router();
-const { user } = require('../models/User');
+const { User } = require('../db');
+const bcrypt = require('bcrypt');
 // const passport = require('passport');
 require('../passport');
 
 router.put('/resetPassword', async (req, res) => {
-    try {
-      const { userEmail, newPassword } = req.body;
-      const hash = await bcrypt.hash(newPassword, 10);
-      const users = await user.findOneAndUpdate(
-        { email: userEmail },
-        { password: hash, resetPass: false }
-      );
-      res.send('Actualizado');
-    } catch (e) {
-      res.status(404).send('No tienes permiso');
-    }
-  });
+  try {
+    console.log('******wines123********', req.body);
+    const { email, newPassword } = req.body;
+    const hash = await bcrypt.hash(newPassword, 10);
+    const user = await User.findOne(
+      { mail: email },
+      { password: hash, resetPass: false }
+    );
+    res.send('Actualizado');
+  } catch (e) {
+    res.status(404).send('No tienes permisos');
+  }
+});
 
 module.exports = router

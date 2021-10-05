@@ -2,7 +2,7 @@ const { Router } = require('express');
 const authConfig = require('../config/auth')
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-require('../passport.js')
+require('../passport.js');
 const router = Router();
 
 router.post('/', (req, res, next) => {

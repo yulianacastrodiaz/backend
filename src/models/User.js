@@ -49,8 +49,8 @@ module.exports = (sequelize) => {
         required: true,
         allowNull: false,
       },
-      isAdmin: {
-        type: DataTypes.BOOLEAN,
+      rol: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
     }
