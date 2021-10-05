@@ -16,8 +16,9 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
       let token = jwt.sign({ user: user }, authConfig.secret, {
         expiresIn: authConfig.expires
       })
-      console.log(res.redirect)
-      res.json({user, token, msg: "Autenticación exitosa con google"})
+      // res.cookie('token', token)
+      // res.json({user, token, msg: "Autenticación exitosa con google"})
+      res.redirect('https://infallible-boyd-567028.netlify.app/home')
     })
   } else {
     res.status(404).send('El usuario no existe');
