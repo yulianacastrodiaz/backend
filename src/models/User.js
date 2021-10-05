@@ -1,5 +1,4 @@
 const { DataTypes } = require("sequelize");
-const bcrypt = require('bcrypt');
 
 module.exports = (sequelize) => {
   sequelize.define('user',
@@ -12,9 +11,7 @@ module.exports = (sequelize) => {
       },
       mail: {
         type: DataTypes.STRING,
-        allowNull: false,
         unique: true,
-        defaultValue: "/^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/",
         validate: {
           isEmail: {
             msg: "El mail debe ser un correo valido."
@@ -46,8 +43,17 @@ module.exports = (sequelize) => {
       },
       password: {
         type: DataTypes.STRING,
-        required: true,
-        allowNull: false,
+      },
+      photo:{
+        type: DataTypes.STRING,
+        validate:{
+          isUrl:{
+            msg: "La foto debe ser de tipo http://foo.com"
+          }
+        }
+      },
+      idGoogle:{
+        type: DataTypes.STRING
       },
       isAdmin: {
         type: DataTypes.BOOLEAN,
