@@ -6,9 +6,9 @@ const router = Router();
 const { G_CLIENT_ID, G_CLIENT_SECRET, G_REDIRECT_URI, G_REFRESH_TOKEN } = process.env
 
 router.post('/', async (req,res) => {
-    const {name, email, message} = req.body;
+    const {name, email, subject, message} = req.body;
     const contentHtml = `
-        <h1>Formulario de nodemailer,/h1>
+        <h1>Wines e-commerce</h1>
         <ul>
             <li>name: ${name}</li>
             <li>email: ${email}</li>
@@ -45,7 +45,7 @@ router.post('/', async (req,res) => {
           const mailOptions= {
               from:'Wine-ecommerce <apimailstk@gmail>',
               to: `${email}`,
-              subject:'Info desde Wines e-commerce',
+              subject: subject,
               html:contentHtml
           } 
           
