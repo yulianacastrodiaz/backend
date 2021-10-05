@@ -16,6 +16,7 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
       let token = jwt.sign({ user: user }, authConfig.secret, {
         expiresIn: authConfig.expires
       })
+      console.log(res.redirect)
       res.json({user, token, msg: "Autenticación exitosa con google"})
     })
   } else {
