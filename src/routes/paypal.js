@@ -5,6 +5,9 @@ const bodyParser = require('body-parser');
 const request = require('request');
 require('dotenv').config();
 const { Cart } = require('../db')
+const { User } = require('../db')
+const msg = require('../emailTemplates/payMsg')
+
 
 
 
@@ -19,7 +22,8 @@ router.use('/get-payment', async (req, res, next) => {
     try {
         let change = body.purchase_units[0].amount
         let { currency_code, value, orderid } = req.body
-        currency_code = currency_code.toUpperCase()
+
+        currency_code = "USD"
 
         //validaciones para "currency_code"
         if (typeof currency_code !== "string") { return res.status(404).json(`El campo currency_code solo admite datos del tipo string`) }
@@ -57,7 +61,7 @@ router.use('/get-payment', async (req, res, next) => {
 
     } catch (error) {
         console.log(error)
-        res.status(404).json("Ocurrio un problema inesperado, revise el id del carrito proporcionado")
+        res.status(404).json("Ocurrio un problema inesperado, revise el id del carrito proporcionado, no se encontraron carritos con el ID")
     }
 })
 
@@ -117,6 +121,21 @@ const executePayment = async (req, res) => {
             }
             console.log("ticket:", newTicket)
 
+            let userID = await Cart.findOne({
+                where: { id: body.client },
+                attributes: ['userId']
+            })
+
+            let code = userID.dataValues.userId;
+
+            let userDate = await User.findOne({
+                where: { id: code },
+                attributes: ['name', 'mail']
+            })
+
+            let name = userDate.dataValues.name;
+            let mail = userDate.dataValues.mail;
+
             await Cart.update({
                 payment_method: "PAYPAL",
                 paymentStatus: status,
@@ -125,47 +144,73 @@ const executePayment = async (req, res) => {
                 where: { id: body.client }
             })
 
+            request.post('http://localhost:3001/mail', { form: { name: name, email: mail, message: msg.Psuccess1 + body.client + msg.Psuccess2 } }, async (err, response) => {
+
+            })
+
             res.json(`El proceso de pago se efectuo de manera satisfactoria, ya puedes cerrar esta ventana`)
         })
-    }catch (error) {
+    } catch (error) {
         console.log(error)
         res.status(404).json("Ocurrio un problema inesperado al intentar ejecutar el pago")
     }
-    }
+}
 
 
 
 router.post('/get-payment', createPayment)
 
-    router.get('/validated-payment', executePayment)
+router.get('/validated-payment', executePayment)
 
-    //ruta provisoria, deberia ser del front
-    router.get('/canceled-payment', async (req, res) => {
-        body;
-        const token = req.query.token
+//ruta provisoria, deberia ser del front
+router.get('/canceled-payment', async (req, res) => {
+    body;
+    const token = req.query.token
 
-        const newTicket = {
-            payment_method: "PAYPAL",
-            operationCode: token,
-            paymentStatus: "FAILURE",
-        }
-        console.log(newTicket)
-        await Cart.update({
-            payment_method: "PAYPAL",
-            paymentStatus: "FAILURE",
-            operationCode: token,
-        }, {
-            where: { id: body.client }
-        })
+    const newTicket = {
+        payment_method: "PAYPAL",
+        operationCode: token,
+        paymentStatus: "FAILURE",
+    }
+    console.log(newTicket)
+
+    let userID = await Cart.findOne({
+        where: { id: body.client },
+        attributes: ['userId']
+    })
+
+    let code = userID.dataValues.userId;
+
+    let userDate = await User.findOne({
+        where: { id: code },
+        attributes: ['name', 'mail']
+    })
+
+    let name = userDate.dataValues.name;
+    let mail = userDate.dataValues.mail;
+
+    await Cart.update({
+        payment_method: "PAYPAL",
+        paymentStatus: "FAILURE",
+        operationCode: token,
+    }, {
+        where: { id: body.client }
+    })
+
+    request.post('http://localhost:3001/mail', { form: { name: name, email: mail, message: msg.Pfailure1 + body.client + msg.Pfailure2 } }, async (err, response) => {
+
+    })
 
 
-        let cancel = {
-            msg: `El pago ${token} no pudo llevarse a cabo.
+    let cancel = {
+        msg: `El pago ${token} no pudo llevarse a cabo.
     Por uno de los siguientes motivos:
     *El cliente cancelo la compra
     *Las credenciales no son las correctas, reviselas
-    *Intente cambiar de metodo de pago e intente nuevamente`}
-        return res.status(200).json(cancel)
-    })
+    *Intente cambiar de metodo de pago e intente nuevamente
+    
+    Puedes cerrar esta ventana`}
+    return res.status(200).json(cancel)
+})
 
-    module.exports = router;
+module.exports = router;
