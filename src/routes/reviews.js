@@ -9,11 +9,12 @@ try {
     const { id } = req.params
     if(id !== undefined || id !== null){
       const product = await Product.findOne({ where: { id }, include: Review })
-      if(product.dataValues.reviews.length > 0){
-        for (let i = 0; i < product.dataValues.reviews.length; i++) {
-          if(product.dataValues.reviews[i].userId){
-            const reviewUser = await User.findByPk(product.dataValues.reviews[i].userId)
-            product.dataValues.reviews[i].userName = `${reviewUser.name} ${reviewUser.lastname}`
+      if(product.reviews.length > 0){
+        for (let i = 0; i < product.reviews.length; i++) {
+          if(product.reviews[i].userId){
+            const reviewUser = await User.findByPk(product.reviews[i].userId)
+            console.log(reviewUser)
+            product.reviews[i].userId = reviewUser;
             await product.save()
           }
         }
