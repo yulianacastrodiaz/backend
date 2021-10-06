@@ -55,9 +55,8 @@ module.exports = (sequelize) => {
       idGoogle:{
         type: DataTypes.STRING
       },
-      rol: {
-        type: DataTypes.STRING,
-        allowNull: true,
+      isAdmin: {
+        type: DataTypes.BOOLEAN,
       },
     }
   )

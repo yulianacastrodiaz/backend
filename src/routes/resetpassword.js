@@ -6,7 +6,6 @@ require('../passport');
 
 router.put('/resetPassword', async (req, res) => {
   try {
-    console.log('******wines123********', req.body);
     const { email, newPassword } = req.body;
     const hash = await bcrypt.hash(newPassword, 10);
     const user = await User.findOne(
