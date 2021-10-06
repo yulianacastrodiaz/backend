@@ -43,11 +43,11 @@ try {
 
 try {
   router.post('/', async(req, res) => {
-    const { type, categoryId } = req.body
- 
+    const { type, category } = req.body
     const newSubCategory = await SubCategory.create({type})
-    newSubCategory.setCategory(categoryId)
-    res.json(newSubCategory)
+    const catid = await Category.findOne({where: { name: category }})
+    newSubCategory.setCategory(catid.id)
+      res.json(catid)
   })
 } catch (error) {
   console.log(error)
