@@ -10,6 +10,13 @@ try {
     if(id !== undefined || id !== null){
       const product = await Product.findOne({ where: { id }, include: Review })
       if(product.dataValues.reviews.length > 0){
+        for (let i = 0; i < product.dataValues.reviews.length; i++) {
+          if(product.dataValues.reviews[i].userId){
+            const reviewUser = await User.findByPk(product.dataValues.reviews[i].userId)
+            product.dataValues.reviews[i].userName = `${reviewUser.name} ${reviewUser.lastname}`
+            await product.save()
+          }
+        }
         res.json(product)
       } else {
         res.status(404).json({ msg: "El producto no tiene reviews" })
