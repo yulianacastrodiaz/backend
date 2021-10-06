@@ -6,9 +6,21 @@ const authConfig = require('./config/auth')
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 
+
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
 passport.serializeUser((user, done) => {
   done(null, user.id)
+});
+
+passport.deserializeUser((id, done) => {
+  User.findByPk(id)
+  .then((user) => {
+    if (user) {
+      done(null, user);
+    } else {
+      done(user.errors, null);
+    }
+  });
 });
 
 passport.use(new GoogleStrategy(
@@ -16,7 +28,8 @@ passport.use(new GoogleStrategy(
     clientID: GOOGLE_CLIENT_ID,
     clientSecret: GOOGLE_CLIENT_SECRET,
     callbackURL: "/auth/google/callback",
-  }, (accessToken, refreshToken, profile, done) => {
+    passReqToCallback: true,
+  }, (req, accessToken, refreshToken, profile, done) => {
     if(profile){
       User.findOne({where: {idGoogle: profile.id}})
       .then((user) =>{
@@ -26,6 +39,7 @@ passport.use(new GoogleStrategy(
         } else {
           User.create({
             username: profile.displayName,
+            mail: profile.emails[0].value,
             name: profile.name.givenName,
             lastname: profile.name.familyName,
             photo: profile.photos[0].value,
@@ -66,20 +80,12 @@ passport.use(new LocalStrategy(
       return done(null, false)
     })
     .catch(err => {
-      return err
+      return done(err)
     })
   }
 ))
 
 
-passport.deserializeUser(function (id, done) {
-  User.findById(id).then(function (user) {
-    if (user) {
-      done(null, user.get());
-    } else {
-      done(user.errors, null);
-    }
-  });
-});
+
 
 module.exports = passport

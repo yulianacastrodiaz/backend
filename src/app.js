@@ -3,12 +3,9 @@ const cookieParser = require('cookie-parser');
 const morgan = require('morgan');
 const routes = require('./routes/index.js');
 const passport = require('passport');
-const bodyParser = require('body-parser');
-const session = require('express-session');
-const passportLocalSequelize = require('passport-local-sequelize');
 const cors = require ('cors');
-
-
+require("dotenv").config();
+const cookieSession = require('cookie-session');
 
 require('./db.js');
 
@@ -33,10 +30,16 @@ server.use((req, res, next) => {
 })
 
 
-server.use(passport.initialize());
-server.use(passport.session());
+
 
 server.use('/api', passport.authenticate('jwt', { session : false }));
+server.use(cookieSession({
+  maxAge: 24 * 60 * 60 * 1000,
+  keys: [process.env.COOKIE_KEY]
+}))
+
+server.use(passport.initialize());
+server.use(passport.session());
 
 server.use('/', routes);
 
