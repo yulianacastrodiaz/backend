@@ -13,6 +13,12 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
   if(user){
     req.logIn(user, (err) => {
       if (err) throw err;
+      let token = jwt.sign({ user: user }, authConfig.secret, {
+        expiresIn: authConfig.expires
+      })
+      // res.cookie('token', token)
+      // res.json({user, token, msg: "Autenticación exitosa con google"})
+      res.redirect('https://infallible-boyd-567028.netlify.app/home')
       // let token = jwt.sign({ user: user }, authConfig.secret, {
       //   expiresIn: authConfig.expires
       // })
@@ -32,4 +38,3 @@ router.get('/google/callback', passport.authenticate('google'), (req, res) => {
 })
 
 module.exports = router;
-
