@@ -157,14 +157,11 @@ router.put('/', async (req, res) => {
   }
 })
 
-
-router.get('/:id', async (req, res) => {
-  const { id } = req.params
-  console.log('Order: ', id)
+//Muestra todas las ordenes para el administrador
+router.get('/admin', async (req, res) => {
   try {
     const result = await Cart.findAll({
-      where: { orderid: id },
-      attributes: ['state', 'payment_method'],
+      attributes: ['state', 'payment_method', 'createdAt'],
       include: [
         {
           model: User,
@@ -172,69 +169,18 @@ router.get('/:id', async (req, res) => {
         },
         {
           model: Product,
-          attributes: ['name', 'price'],
-          through: {
-            attributes: ['quantity']
-          }
-        }]
-    });
-    const order = {}
-    order.uname = result[0].user.name
-    order.ulastname = result[0].user.lastname
-    order.products = result[0].products.map(p => {
-      return {
-        name: p.name,
-        price: p.price,
-        quantity: p.products_carts.quantity
-      }
-    })
-    res.status(200).json(order)
-  } catch (error) {
-    res.status(404).json('Error: ', error)
-  }
-});
-
-//Muestra todas las ordenes para el administrador
-router.get('/admin/orders', async (req, res) => {
-  try {
-    const allOrders = await Cart.findAll({
-      include: [
-        {
-          model: User,
-          attributes: ['name', 'lastname', 'username', 'mail', 'id']
-        }, {
-          model: Product,
           attributes: ['id','name', 'price','picture'],
           through: {
             attributes: ['quantity']
           }
         }]
     });
-    if (!result.length) return res.status(400).send('No orders found')
-    const order = {}
-    const date = new Date(result[0].createdAt)
-    const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
-    order.uname = result[0].user.name
-    order.ulastname = result[0].user.lastname
-    order.state = result[0].state
-    order.payment_method = result[0].payment_method
-    order.created = dia
-    order.products = result[0].products.map(p => {
-      return {
-        productid : p.id,
-        name: p.name,
-        price: p.price,
-        image: p.picture,
-        quantity: p.products_carts.quantity
-      }
-    })
-    if (allOrders.length) {
-      res.json(allOrders)
-    } else {
-      return res.status(400).json({ msg: 'No orders found' });
-    }
+    if (!result.length) {
+      return res.status(400).send('No orders found')
+    } 
+    res.json(result)
   } catch (error) {
-    res.status(404).json('Error: ', error)
+    res.send('Error: ', error)
   }
 });
 
@@ -258,26 +204,10 @@ router.get('/:id', async (req, res) => {
           }
         }]
     });
-    const order = {}
-    const date = new Date(result[0].createdAt)
-    const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
-    order.uname = result[0].user.name
-    order.ulastname = result[0].user.lastname
-    order.orderid = result[0].orderid
-    order.paymentStatus = result[0].paymentStatus
-    order.state = result[0].state
-    order.payment_method = result[0].payment_method
-    order.created = dia
-    order.products = result[0].products.map(p => {
-      return {
-        productid : p.id,
-        name: p.name,
-        price: p.price,
-        image : p.picture,
-        quantity: p.products_carts.quantity
-      }
-    })
-    res.status(200).json(order)
+    if (!result.length) {
+      return res.status(400).send('No order found')
+    } 
+    res.json(result)
   } catch (error) {
     res.send('Error: ', error)
   }
@@ -311,27 +241,10 @@ router.get('/', async (req, res) => {
           }
         }]
     });
-    if (!result.length) return res.status(400).send('No orders found')
-    const order = {}
-    const date = new Date(result[0].createdAt)
-    const dia = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
-    order.uname = result[0].user.name
-    order.umail = result[0].user.mail
-    order.ulastname = result[0].user.lastname
-    order.state = result[0].state
-    order.payment_method = result[0].payment_method
-    order.created = dia
-    order.products = result[0].products.map(p => {
-      return {
-        id: p.id,
-        name: p.name,
-        image: p.picture,
-        price: p.price,
-        quantity: p.products_carts.quantity
-      }
-    })
-
-    res.status(200).json(order)
+    if (!result.length) {
+      return res.status(400).send('No orders found')
+    } 
+    res.json(result)
   } catch (error) {
     res.send('Error: ', error)
   }

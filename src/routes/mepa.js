@@ -1,4 +1,4 @@
-const { Router } = require('express');
+const { Router, response } = require('express');
 const bodyParser = require('body-parser');
 const router = Router();
 require('dotenv').config();
@@ -7,7 +7,9 @@ const { MERPA_PUBLIC_KEY, MERPA_ACCS_TOKEN } = process.env
 const { Cart } = require('../db')
 const { Product } = require('../db')
 const { Products_carts } = require('../db')
-
+const { User } = require('../db')
+const msg = require('../emailTemplates/payMsg');
+const request = require('request');
 
 
 const firstUpperCase = function (mayus) { return mayus.replace(/\b\w/g, l => l.toUpperCase()) }
@@ -34,15 +36,17 @@ router.use('/get-payment', async (req, res, next) => {
       where: { id: orderid },
     })
 
-    if (!preference.client) {
-      res.status(404).json(`No fue posible encontrar el carrito del cliente`)
+    console.log("N°carrito",clientFound)
+
+    if (clientFound.length === 0) {
+      res.status(404).json(`No fue posible encontrar el carrito del cliente, revise el id del carrito proporcionado`)
     }
 
     let CartProductFound = await Products_carts.findAll({
       where: { cartId: orderid },
       attributes: ['quantity', 'productId']
     })
-    
+
     if (await CartProductFound.length > 1) { change.title = "Productos"; }
     if (await CartProductFound.length === 1) {
       let prodId = await CartProductFound[0].dataValues.productId
@@ -68,9 +72,9 @@ router.use('/get-payment', async (req, res, next) => {
 let preference = {
   items: [
     {
-      title: "Elementos",
+      title: "",
       picture_url: "https://i.ibb.co/c83qw1s/B7ua5pw-Ig-AAsvw-M.png",
-      unit_price: 56,
+      unit_price: 0,
       quantity: 1,
     }
   ],
@@ -91,7 +95,8 @@ router.post('/get-payment', async (req, res) => {
     .then(function (response) {
       // console.log( response)
       // res.json({id :response.body.id})
-      let urlPay = response.response.sandbox_init_point
+      // let urlPay = response.response.sandbox_init_point
+      let urlPay = response.response.init_point
 
       res.json(urlPay)
     }).catch(function (error) {
@@ -116,25 +121,52 @@ router.get('/feedback', async (req, res) => {
       paymentStatus: status
     }
 
+    let userID = await Cart.findOne({
+      where: { id: preference.client },
+      attributes: ['userId']
+    })
+
+    let code = userID.dataValues.userId;
+
+    let userDate = await User.findOne({
+      where: { id: code },
+      attributes: ['name', 'mail']
+    })
+
+    let name = userDate.dataValues.name;
+    let mail = userDate.dataValues.mail;
+
+
+
     await Cart.update({
-      payment_method : "MERCADOPAGO",
-      paymentStatus : status,
+      payment_method: "MERCADOPAGO",
+      paymentStatus: status,
       operationCode: newTicket.operationCode,
-    },{
+    }, {
       where: { id: preference.client }
     })
-    
+
 
     //la compra se cancelo
     if (status === "FAILURE") {
+      //https://wines-db.herokuapp.com/mail
+      request.post('http://localhost:3001/mail', { form: { name: name, email: mail, message: msg.Mfailure1 + preference.client + msg.Mfailure2 } }, async (err, response) => {
+        
+      })
       return res.json({ msg: `Ocurrio un error al intentar realizar el pago` })
     }
-    res.json({
-      msg: `la compra se realizo de manera satisfactoria, ya puedes cerrar esta ventana`
+
+    //https://wines-db.herokuapp.com/mail
+    request.post('http://localhost:3001/mail', { form: { name: name, email: mail, message: msg.Msuccess1 + preference.client + msg.Msuccess2 } }, async (err, response) => {
+
+    })
+
+    return res.json({
+      msg: `La compra se realizo de manera satisfactoria, ya puedes cerrar esta ventana`
     })
 
   } catch (error) {
-    console.log("problema:",error)
+    console.log("problema:", error)
     res.status(404).json("Ocurrio un problema inesperado")
   }
 });
