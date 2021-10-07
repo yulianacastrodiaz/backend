@@ -21,6 +21,7 @@ const cartRouter = require('./cart')
 const deleteuser = require('./deleteuser');
 const resetpassword = require('./resetpassword');
 const roles = require('./roles');
+const edit = require('./edituser');
 const wishl = require('./wishlist')
 
 // Configurar los routers
@@ -43,6 +44,6 @@ router.use('/cart', cartRouter);
 router.use('/delete', deleteuser);
 router.use('/password', resetpassword);
 router.use('/promote', roles);
+router.use('/edit', edit);
 router.use('/wlist', wishl);
-
 module.exports = router;
