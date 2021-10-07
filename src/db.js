@@ -38,6 +38,8 @@ sequelize.models = Object.fromEntries(capsEntries);
 // Para relacionarlos hacemos un destructuring
 
 const { Category, SubCategory, Grape, Product, User,  Review, Cart, Products_carts, Location } = sequelize.models;
+const { Category, SubCategory, Grape, Product, User,  Review, Cart, Products_carts, Wishlist, wlist_prods} = sequelize.models;
+
 
 // Aca vendrian las relaciones
 // Product.hasMany(Reviews);
@@ -57,6 +59,11 @@ User.hasMany(Cart)
 Cart.belongsTo(User)
 Product.belongsToMany(Cart, { through: Products_carts })
 Cart.belongsToMany(Product, { through: Products_carts })
+User.hasOne(Wishlist);
+Wishlist.belongsTo(User)
+Product.belongsToMany(Wishlist, { through: 'wlist_prods' })
+Wishlist.belongsToMany(Product, { through: 'wlist_prods' })
+
 // User.hasMany(User) 
 // Product.belongsTo(Location)
 // Location.belongsToMany(Product)
