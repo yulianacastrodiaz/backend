@@ -9,6 +9,7 @@ const presetProducts = require('./src/preset/presetProducts')
 const preloadReviews = require('./src/preload/preloadReviews')
 const presetReviews = require('./src/preset/presetReviews')
 const preloadAdmin = require('./src/preload/preloadAdmin')
+const preloadLocations = require ('./src/preload/preloadLocations')
 
 // Syncing all the models at once.
 const PORT = process.env.PORT || 3001
@@ -35,6 +36,8 @@ try {
         console.log('preseteo de productos: done :)');
         const setReviews = await presetReviews();
         console.log('preseteo de reviews: done :)');
+        const setLocations = await preloadLocations();
+        console.log(`preseteo de sucursales ✅`)
       }
       server.listen(PORT, () => {
         console.log(`${PORT}`); // eslint-disable-line no-console
