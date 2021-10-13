@@ -3,6 +3,7 @@
 
 const { Product } = require('../db')
 const { Category } = require('../db')
+const { Location } = require('../db')
 
 module.exports = {
 
@@ -12,12 +13,12 @@ module.exports = {
         return prod
     },
 
-    category: async function(category){
+    category: async function (category) {
         let data = await this.allProducts()
-        const categoryDB = await Category.findOne({ where: {name: category}})
-        if(categoryDB){
-           let allProducts = data.filter(p => p.categoryId === categoryDB.id)
-           return allProducts;
+        const categoryDB = await Category.findOne({ where: { name: category } })
+        if (categoryDB) {
+            let allProducts = data.filter(p => p.categoryId === categoryDB.id)
+            return allProducts;
         } else {
             return "Esta categoría no existe"
         }
@@ -197,5 +198,48 @@ module.exports = {
         if (rank) {
             return ("Esta ruta aun no tiene asfalto, a donde creen que van?")
         }
+    },
+
+    allPlace: async function () {
+        let markets = await Location.findAll()
+        return markets
+    },
+
+    locationName: async function (name) {
+        let data = await this.allPlace()
+        const nombre = data.filter(l => l.name.includes(name))
+        return (nombre.length > 0) ? (nombre)
+            : (`No tenemos registrada una sucursal que coincida con ${name} como nombre`)
+    },
+
+    locationCountry: async function (country) {
+        let data = await this.allPlace()
+        const pais = data.filter(l => l.country.includes(country))
+        return (pais.length > 0) ? (pais)
+            : (`No tenemos registrada una sucursal que coincida con el pais ${country}`)
+    },
+
+    locationCity: async function (city) {
+        let data = await this.allPlace()
+        const ciudad = data.filter(l => l.city.includes(city))
+        return (ciudad.length > 0) ? (ciudad)
+            : (`No tenemos registrada una sucursal que coincida con ${city}`)
+    },
+
+    locationUser: async function (userId) {
+        let data = await this.allPlace()
+        const usuario = data.filter(l => l.userId === (userId))
+        return (usuario.length > 0) ? (usuario)
+            : (`No tenemos registrada una sucursal creada por el usuario ${userId}`)
+    },
+
+    locationId: async function (storeId) {
+        let data = await this.allPlace()
+        const ciudad = data.filter(l => l.id === (storeId))
+        return (ciudad.length > 0) ? (ciudad)
+            : (`No tenemos registrada una sucursal que coincida con ${storeId}`)
     }
+
+
+
 }
