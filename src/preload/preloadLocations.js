@@ -2,7 +2,7 @@ const { Location } = require('../db')
 
 function preloadLocations() {
     const locations = [{
-        show: false,
+
         name: "Center Point",
         coordsLat: -5.5387918,
         coordsLng: -74.8067453,
@@ -74,7 +74,7 @@ function preloadLocations() {
     },
     {
         name: "Empedocles Patio Olmos Shopping",
-        coordsLat: -31.420017, 
+        coordsLat: -31.420017,
         coordsLng: -64.188576,
         center: false,
         zoom: 00,
@@ -89,7 +89,7 @@ function preloadLocations() {
     {
         name: "Empedocles São Paulo",
         coordsLat: -23.602552,
-        coordsLng:  -46.691003,
+        coordsLng: -46.691003,
         center: false,
         zoom: 00,
         year: 2021,
@@ -102,7 +102,7 @@ function preloadLocations() {
     },
     {
         name: "Empedocles La Plata",
-        coordsLat: -34.933611, 
+        coordsLat: -34.933611,
         coordsLng: -57.953728,
         center: false,
         zoom: 00,
@@ -117,7 +117,7 @@ function preloadLocations() {
     {
         name: "Empedocles Quito",
         coordsLat: -0.181966,
-        coordsLng:  -78.480073,
+        coordsLng: -78.480073,
         center: false,
         zoom: 00,
         year: 2021,
@@ -130,8 +130,8 @@ function preloadLocations() {
     },
     {
         name: "Empedocles Casa Central",
-        coordsLat: -34.593037, 
-        coordsLng:  -58.428097,
+        coordsLat: -34.593037,
+        coordsLng: -58.428097,
         center: false,
         zoom: 00,
         year: 2021,
@@ -143,9 +143,24 @@ function preloadLocations() {
         country: "Argentina"
     },
     {
+        name: "Bodega Tralice Showroom",
+        coordsLat: -34.614317,
+        coordsLng: -68.335218,
+        center: false,
+        zoom: 00,
+        year: 2021,
+        picture: "https://i.ibb.co/r7dQRBy/store.png",
+        change: "Backend Admin",
+        userId: "2ad58d4c-8c3b-41ec-a9ab-a0aa39a12c63",
+        adress: "Av. Hipólito Yrigoyen 414",
+        city: "San Rafael - Mendoza",
+        country: "Argentina"
+
+    },
+    {
         name: "🥳✨Proximamente Empedocles en Chile 🛒",
-        coordsLat: -22.454692, 
-        coordsLng:  -68.929242,
+        coordsLat: -22.454692,
+        coordsLng: -68.929242,
         center: false,
         zoom: 00,
         year: 2021,
@@ -155,10 +170,10 @@ function preloadLocations() {
         adress: "Av. Granaderos 2561",
         city: "Calama - Antofagasta",
         country: "Chile"
-        
+
     }
 
-];
+    ];
 
     try {
         const newLocations = locations.map(async (s) => {
